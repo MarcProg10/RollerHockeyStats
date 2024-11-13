@@ -60,9 +60,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-
+    //firebase
     implementation("com.google.firebase:firebase-analytics")
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    //viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

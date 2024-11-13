@@ -4,6 +4,18 @@
     <option name="deviceSelectionList">
       <list>
         <PersistentDeviceSelectionData>
+          <option name="api" value="33" />
+          <option name="brand" value="google" />
+          <option name="codename" value="tangorpro" />
+          <option name="id" value="tangorpro" />
+          <option name="manufacturer" value="Google" />
+          <option name="name" value="Pixel Tablet" />
+          <option name="screenDensity" value="320" />
+          <option name="screenX" value="1600" />
+          <option name="screenY" value="2560" />
+          <option name="selected" value="true" />
+        </PersistentDeviceSelectionData>
+        <PersistentDeviceSelectionData>
           <option name="api" value="27" />
           <option name="brand" value="DOCOMO" />
           <option name="codename" value="F01L" />
@@ -302,17 +314,6 @@
           <option name="screenY" value="2400" />
         </PersistentDeviceSelectionData>
         <PersistentDeviceSelectionData>
-          <option name="api" value="33" />
-          <option name="brand" value="google" />
-          <option name="codename" value="tangorpro" />
-          <option name="id" value="tangorpro" />
-          <option name="manufacturer" value="Google" />
-          <option name="name" value="Pixel Tablet" />
-          <option name="screenDensity" value="320" />
-          <option name="screenX" value="1600" />
-          <option name="screenY" value="2560" />
-        </PersistentDeviceSelectionData>
-        <PersistentDeviceSelectionData>
           <option name="api" value="34" />
           <option name="brand" value="google" />
           <option name="codename" value="tokay" />
@@ -325,5 +326,6 @@
         </PersistentDeviceSelectionData>
       </list>
     </option>
+    <option name="selectedCloudProject" value="rollerhockeystats-4bb9c" />
   </component>
 </project>
