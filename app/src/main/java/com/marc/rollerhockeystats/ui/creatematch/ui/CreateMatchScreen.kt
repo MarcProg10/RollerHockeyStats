@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import com.marc.rollerhockeystats.R
+import com.marc.rollerhockeystats.ui.models.ShowAppLogo
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -78,6 +79,7 @@ fun CreateMatchScreen(){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
 
+        ShowAppLogo()
         TextField(
             value = matchCategory,
             onValueChange = { matchCategory = it},
@@ -97,12 +99,10 @@ fun CreateMatchScreen(){
         Spacer(modifier = Modifier.height(10.dp))
 
         DatePickerFieldToModal()
-            
-
-
-
-
-        //lazyColumn (entrada àrbitres)
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(onClick = { /*ANAR PANTALLA EQUIPS*/ }) {
+            Text(text = "Introduïr plantilles")
+        }
     }
 }
 
