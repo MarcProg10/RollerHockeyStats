@@ -35,6 +35,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.marc.rollerhockeystats.ui.creatematch.domain.CreateMatchViewModel
 import com.marc.rollerhockeystats.ui.models.ShowAppLogo
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,12 +44,9 @@ import java.util.Locale
 
 
 @Composable
-fun CreateMatchScreen(){
+fun CreateMatchScreen(viewModel: CreateMatchViewModel){
 
-    var matchCategory by remember { mutableStateOf("") }
-    var ubication by remember { mutableStateOf("") }
-    var halfs by remember { mutableStateOf("") }
-    var minutes by remember { mutableStateOf("") }
+    //settejar variables a partir del viewModel
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -58,30 +57,30 @@ fun CreateMatchScreen(){
 
         ShowAppLogo()
         TextField(
-            value = matchCategory,
-            onValueChange = { matchCategory = it},
+            value = viewModel.matchCategory.value,
+            onValueChange = viewModel::setMatchCategory, //referència a la funció
             label = { Text("Categoria") },
             maxLines = 1
         )
         Spacer(modifier = Modifier.height(10.dp))
 
         TextField(
-            value = halfs,
-            onValueChange = { halfs = it},
+            value = viewModel.halfs.value,
+            onValueChange = viewModel::setHalfs,
             label = { Text("Parts") },
             maxLines = 1
         )
         Spacer(modifier = Modifier.height(10.dp) )
         TextField(
-            value = minutes,
-            onValueChange = {minutes = it } ,
+            value = viewModel.minutes.value,
+            onValueChange = viewModel::setMinutes,
             label = { Text("Minuts per part")},
             maxLines = 1
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = ubication,
-            onValueChange = { ubication = it},
+            value = viewModel.ubication.value,
+            onValueChange = viewModel::setUbication,
             label = { Text("Ubicació") },
             maxLines = 1
         )
@@ -89,6 +88,7 @@ fun CreateMatchScreen(){
         Spacer(modifier = Modifier.height(10.dp))
 
         DatePickerFieldToModal()
+
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = { /*ANAR PANTALLA EQUIPS*/ }) {
             Text(text = "Introduïr plantilles")
@@ -166,8 +166,8 @@ fun convertMillisToDate(millis: Long): String {
 }
 
 
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun CreateMatchPreview(){
-    CreateMatchScreen()
-}
+//@Preview(showSystemUi = true, showBackground = true)
+//@Composable
+//fun CreateMatchPreview(){
+//    CreateMatchScreen()
+//}

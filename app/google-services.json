@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "805926614571",
-    "project_id": "rollerhockeystats-4bb9c",
-    "storage_bucket": "rollerhockeystats-4bb9c.firebasestorage.app"
+    "project_number": "980566015623",
+    "project_id": "rinkhockeystats",
+    "storage_bucket": "rinkhockeystats.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:805926614571:android:7f0c894c750260fe1b1c6e",
+        "mobilesdk_app_id": "1:980566015623:android:d60b6bf8755dc0b2ff4222",
         "android_client_info": {
           "package_name": "com.marc.rollerhockeystats"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDE2od9Tgn1TsNe5b-uC0joDFO8m5Gq2tg"
+          "current_key": "AIzaSyB80R5DKgMIjW71OSjGpoaw6qvHCwaKDe4"
         }
       ],
       "services": {
