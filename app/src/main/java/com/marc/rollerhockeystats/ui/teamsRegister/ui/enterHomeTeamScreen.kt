@@ -77,7 +77,7 @@ fun EnterHomeTeamScreen(){
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = { /*avançar a introduir equip visitant*/ }) {
-            Text(text = "Començar partit")
+            Text(text = "Registrar equip local")
         }
     }
 }

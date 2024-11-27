@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -25,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,7 +49,11 @@ import java.util.Locale
 @Composable
 fun CreateMatchScreen(viewModel: CreateMatchViewModel){
 
-    //settejar variables a partir del viewModel
+    val matchCategory by viewModel.matchCategory.collectAsState()
+    val halfs by viewModel.halfs.collectAsState()
+    val minutes by viewModel.minutes.collectAsState()
+    val ubication by viewModel.ubication.collectAsState()
+    val selectedDate by viewModel.selectedDate.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -57,7 +64,7 @@ fun CreateMatchScreen(viewModel: CreateMatchViewModel){
 
         ShowAppLogo()
         TextField(
-            value = viewModel.matchCategory.value,
+            value = matchCategory,
             onValueChange = viewModel::setMatchCategory, //referència a la funció
             label = { Text("Categoria") },
             maxLines = 1
@@ -65,21 +72,23 @@ fun CreateMatchScreen(viewModel: CreateMatchViewModel){
         Spacer(modifier = Modifier.height(10.dp))
 
         TextField(
-            value = viewModel.halfs.value,
+            value = halfs,
             onValueChange = viewModel::setHalfs,
             label = { Text("Parts") },
-            maxLines = 1
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) //assegurem que s'entra un número
         )
         Spacer(modifier = Modifier.height(10.dp) )
         TextField(
-            value = viewModel.minutes.value,
+            value = minutes,
             onValueChange = viewModel::setMinutes,
             label = { Text("Minuts per part")},
-            maxLines = 1
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = viewModel.ubication.value,
+            value = ubication,
             onValueChange = viewModel::setUbication,
             label = { Text("Ubicació") },
             maxLines = 1
@@ -87,7 +96,10 @@ fun CreateMatchScreen(viewModel: CreateMatchViewModel){
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        DatePickerFieldToModal()
+        DatePickerFieldToModal(
+            //selectedDate = selectedDate,
+            //onDateSelected = viewModel::setSelectedDate
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = { /*ANAR PANTALLA EQUIPS*/ }) {

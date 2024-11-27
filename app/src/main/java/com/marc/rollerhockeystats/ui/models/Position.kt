@@ -1,6 +1,6 @@
 package com.marc.rollerhockeystats.ui.models
 
 data class Position(
-    val x : Int = 0,
-    val y : Int = 0
+    val x : Float = 0f,
+    val y : Float = 0f
 )
