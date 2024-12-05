@@ -22,10 +22,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.marc.rollerhockeystats.R
+import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
 
 @Composable
-fun MatchScreen(){
+fun MatchScreen(viewModel: MatchViewModel, navController: NavController){
 
 
 }

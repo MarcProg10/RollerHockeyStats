@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import com.marc.rollerhockeystats.ui.creatematch.ui.CreateMatchScreen
 import com.marc.rollerhockeystats.ui.home.ui.*
-import com.marc.rollerhockeystats.ui.match.ui.HockeyCourt
+import com.marc.rollerhockeystats.ui.navigation.MainNavHost
 import com.marc.rollerhockeystats.ui.theme.RollerHockeyStatsTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,16 +30,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RollerHockeyStatsTheme {
-                //HomeScreen()
-                val marks = remember { mutableStateOf(listOf<Offset>())}
-                HockeyCourt(
-                    onCourtClick = { offset ->
-                        marks.value = marks.value + offset
-                        println("Click detectat a la pista: $offset")
-                    },
-                    marks = marks.value,
-                    modifier = Modifier.fillMaxSize()
-                )
+                MainNavHost()
             }
         }
     }
