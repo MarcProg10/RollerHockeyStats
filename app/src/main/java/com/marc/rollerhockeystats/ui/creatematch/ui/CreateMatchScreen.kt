@@ -1,6 +1,7 @@
 package com.marc.rollerhockeystats.ui.creatematch.ui
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -33,7 +35,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,34 +45,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 import com.marc.rollerhockeystats.ui.models.Match
+import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 import com.marc.rollerhockeystats.ui.models.ShowAppLogo
+import com.marc.rollerhockeystats.ui.models.Team
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-//fun CreateMatchScreen(viewModel: MatchViewModel, navController : NavHostController, onMatchCreated: () -> Unit)
+
 //TODO: s'ha de gestionar l'emmagatzament de selectedDate
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateMatchScreen(viewModel: MatchViewModel, navController : NavHostController){
+fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHostController){
 
+    val matchReference = matchesViewModel.matchesReference.push()
+    val matchId = matchReference.key
+    val viewModel = createMatchViewModel(checkNotNull(matchId))
 
-    val matchCategory by viewModel.matchCategory.collectAsState()
-    val halfs by viewModel.halfs.collectAsState()
-    val minutes by viewModel.minutes.collectAsState()
-    val ubication by viewModel.ubication.collectAsState()
-    val selectedDate by viewModel.selectedDate.collectAsState()
+    var matchCategory by remember { mutableStateOf("") }
+    var ubication by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var halfsText by remember {mutableStateOf("")}
+    var minutesText by remember {mutableStateOf("")}
 
+    val focusManager = LocalFocusManager.current //en quin element fa focus la UI
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -107,60 +119,75 @@ fun CreateMatchScreen(viewModel: MatchViewModel, navController : NavHostControll
             
             TextField(
                 value = matchCategory,
-                onValueChange = viewModel::setMatchCategory, //referència a la funció
+                onValueChange = {matchCategory = it},
                 label = { Text("Categoria") },
-                maxLines = 1
+                maxLines = 1,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
             Spacer(modifier = Modifier.height(10.dp))
 
             TextField(
-                value = halfs,
-                onValueChange = viewModel::setHalfs,
+                value = halfsText,
+                onValueChange = { halfsText = it  },
                 label = { Text("Parts") },
                 maxLines = 1,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) //assegurem que s'entra un número
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ), //assegurem que s'entra un número
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()})
             )
             Spacer(modifier = Modifier.height(10.dp) )
             TextField(
-                value = minutes,
-                onValueChange = viewModel::setMinutes,
+                value = minutesText,
+                onValueChange = { minutesText = it },
                 label = { Text("Minuts per part")},
                 maxLines = 1,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                    ),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()})
+
             )
             Spacer(modifier = Modifier.height(10.dp))
             TextField(
                 value = ubication,
-                onValueChange = viewModel::setUbication,
+                onValueChange = { ubication = it },
                 label = { Text("Ubicació") },
-                maxLines = 1
+                maxLines = 1,
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            DatePickerFieldToModal(
-                //selectedDate = selectedDate,
-                //onDateSelected = viewModel::setSelectedDate
-                //TODO: com no mostrar el teclat un cop introduïda la data
-            )
+            DatePickerFieldToModal()
 
             Spacer(modifier = Modifier.height(10.dp))
             Button(
                 onClick = {
+
+                    //TODO: comprovar que cap camp sigui blank
                     coroutineScope.launch {
                         val match = Match(
+                            id = matchId,
                             category = matchCategory,
-                            halfs = halfs,
-                            minutes = minutes,
+                            halfs = halfsText.toInt(),
+                            minutes = minutesText.toInt(),
                             ubication = ubication,
-                            selectedDate = selectedDate
+                            selectedDate = selectedDate,
+                            finished = false,
+                            homeTeam = Team(),
+                            awayTeam = Team()
                         ) //creació del partit
                         viewModel.setMatch(match) //actualtizem partit al viewModel
-                        saveMatch(match) //desem partit
-                        navController.navigate("enterHomeTeam")
+                        matchesViewModel.addMatch(match)
+                        saveMatch(match, matchReference) //desem partit
+                        navController.navigate("enterHomeTeam/$matchId")
                     }
-                 }
-            )
+                })
             {
                 Text("Introduïr plantilles")
             }
@@ -168,11 +195,21 @@ fun CreateMatchScreen(viewModel: MatchViewModel, navController : NavHostControll
     }
 }
 
+@Composable
+fun createMatchViewModel(matchId : String) : MatchViewModel {
+    return viewModel(factory = MatchViewModelFactory(matchId))
+}
+
+
+@Composable
+fun ShowErrorToast(errorMessage : String){
+    Toast.makeText(LocalContext.current, errorMessage, Toast.LENGTH_SHORT).show()
+}
+
 //funció per a desar un partit a Firebase Realtime Database
-//TODO: afegir no poder avançar de pantalla si no es desa correctament
-private fun saveMatch(match : Match){
-    val database = FirebaseDatabase.getInstance()
-    val matchReference = database.getReference("matches").push()
+//TODO: afegir no poder avançar de pantalla si no es desa correctament?
+
+private fun saveMatch(match : Match, matchReference : DatabaseReference){
 
     matchReference.setValue(match)
         .addOnSuccessListener {

@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,20 +55,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.ui.models.Player
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
 import com.marc.rollerhockeystats.ui.models.StaffMember
+import com.marc.rollerhockeystats.ui.models.Team
+import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController) {
+fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesViewModel : MatchesViewModel) {
+
+    val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
 
     var teamName by remember { mutableStateOf("") }
-    val staff by viewModel.homeTeamStaff.collectAsState() //tindrà maxim 5 components
-    val teamPlayers by viewModel.homeTeamPlayers.collectAsState() //maxim 10 components
+    val staff by remember { derivedStateOf { viewModel.getStaff("home") }} //màxim 5 components
+    val teamPlayers by remember { derivedStateOf { viewModel.getPlayers("home")}} //màxim 10 components
+
     var playerName by remember { mutableStateOf("") }
     var playerNumber by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     var staffMemberName by remember { mutableStateOf("") }
     var staffMemberRole by remember { mutableStateOf("") }
@@ -112,7 +121,7 @@ fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController)
                 Text(text = "Introdueix dades de l'equip local:")
                 Spacer(modifier = Modifier.height(10.dp))
 
-                TextField(
+                TextField( //entrem nom de l'equip
                     value = teamName,
                     onValueChange = { teamName = it },
                     label = { Text("Nom de l'equip local") },
@@ -123,14 +132,14 @@ fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController)
                 Text(text = "Plantilla")
                 Spacer(Modifier.height(10.dp))
                 Row {
-                    TextField(
+                    TextField( //entrem nom del jugador/a
                         value = playerName,
                         onValueChange = { playerName = it },
                         label = { Text("Nom") },
                         maxLines = 1
                     )
                     Spacer(modifier = Modifier.width(5.dp))
-                    TextField(
+                    TextField( //entrem dorsal del jugador/a
                         value = playerNumber,
                         onValueChange = { playerNumber = it },
                         label = { Text("Dorsal") },
@@ -141,7 +150,7 @@ fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController)
                 Button(
                     onClick = {
                         val playerNumberInt = playerNumber.toInt() //or null???
-                        val player = Player.create(playerName, playerNumberInt)
+                        val player = Player.create(playerName, playerNumberInt) //es crea el jugador entrat
                         if (player.isValid() && teamPlayers.size < 10) {
                             viewModel.addPlayer(player, "home")
                             playerName = ""
@@ -201,7 +210,17 @@ fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController)
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
-                Button(onClick = { navController.navigate("enterAwayTeam") }) {
+                Button(onClick = {
+                    val homeTeam = Team(
+                        teamName = teamName,
+                        staff = staff,
+                        teamPlayers = teamPlayers,
+                        isHome = true
+                        )
+                    viewModel.updateTeam("home",homeTeam)
+                    viewModel.saveMatchToFirebase()
+                    viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
+                    navController.navigate("enterAwayTeam/$matchId") }) {
                     Text(text = "Registrar equip local".uppercase())
                 }
 
@@ -282,9 +301,7 @@ fun EnterHomeTeamScreen(viewModel: MatchViewModel, navController: NavController)
                     }
                 }
             }
-
         }
-
     }
 }
 

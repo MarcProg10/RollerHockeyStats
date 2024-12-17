@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,20 +46,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.ui.models.Player
 import com.marc.rollerhockeystats.ui.models.StaffMember
+import com.marc.rollerhockeystats.ui.models.Team
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnterAwayTeamScreen(viewModel: MatchViewModel, navController: NavController ){
+fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesViewModel: MatchesViewModel ){
+
+    val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
 
     var teamName by remember { mutableStateOf("") }
-    val staff by viewModel.awayTeamStaff.collectAsState() //tindrà maxim 5 components
-    val teamPlayers by viewModel.awayTeamPlayers.collectAsState() //maxim 10 components
+    val staff by remember { derivedStateOf { viewModel.getStaff("home") } } //màxim 5 components
+    val teamPlayers by remember { derivedStateOf { viewModel.getPlayers("home")} } //màxim 10 components
+
     var playerName by remember { mutableStateOf("") }
     var playerNumber by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     var staffMemberName by remember { mutableStateOf("") }
     var staffMemberRole by remember { mutableStateOf("") }
@@ -193,7 +202,17 @@ fun EnterAwayTeamScreen(viewModel: MatchViewModel, navController: NavController 
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
-                Button(onClick = { navController.navigate("matchScreen") }) {
+                Button(onClick = {
+                    val awayTeam = Team(
+                        teamName = teamName,
+                        staff = staff,
+                        teamPlayers = teamPlayers,
+                        isHome = false
+                    )
+                    viewModel.updateTeam("away",awayTeam)
+                    viewModel.saveMatchToFirebase()
+                    viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
+                    navController.navigate("matchScreen/$matchId") }) {
                     Text(text = "Registrar equip visitant".uppercase())
                 }
 
