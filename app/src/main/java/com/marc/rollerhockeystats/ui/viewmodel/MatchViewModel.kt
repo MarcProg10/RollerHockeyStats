@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class MatchViewModel(matchId : String) : ViewModel() {
 
-    private val database = Firebase.database
+    private val database = Firebase.database("https://rinkhockeystats-default-rtdb.europe-west1.firebasedatabase.app")
     private val matchReference = database.getReference("matches").child(matchId)
 
     //aquesta estructuració aporta més seguretat: els atributs es poden modificar dins del viewModel, des de fora només llegir

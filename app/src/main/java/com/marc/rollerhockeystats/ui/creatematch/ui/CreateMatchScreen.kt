@@ -1,6 +1,7 @@
 package com.marc.rollerhockeystats.ui.creatematch.ui
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -72,8 +73,14 @@ import java.util.Locale
 fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHostController){
 
     val matchReference = matchesViewModel.matchesReference.push()
+    Log.d("CreateMatchScreen", "Match reference created: $matchReference")
+
     val matchId = matchReference.key
+    Log.d("CreateMatchScreen", "Match ID: $matchId")
+
     val viewModel = createMatchViewModel(checkNotNull(matchId))
+    Log.d("CreateMatchScreen", "MatchViewModel created: $viewModel")
+    Log.d("CreateMatchScreen", "MatchViewModel created for matchId: $matchId")
 
     var matchCategory by remember { mutableStateOf("") }
     var ubication by remember { mutableStateOf("") }

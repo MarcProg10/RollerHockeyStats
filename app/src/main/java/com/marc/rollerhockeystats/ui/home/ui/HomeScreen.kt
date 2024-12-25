@@ -25,10 +25,6 @@ import com.marc.rollerhockeystats.R
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
-//    Scaffold (
-//        topBar= {
-//            TopAppBar(title = { Text(text = "Pantalla d'inici"))}
-//    )
         Column(modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {

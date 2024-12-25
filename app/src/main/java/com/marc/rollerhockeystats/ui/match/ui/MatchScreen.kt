@@ -52,6 +52,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.marc.rollerhockeystats.ui.models.Action
@@ -113,47 +114,50 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController){
     CenterAlignedTopAppBar(
         title = {
             Row(
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
 
             ) {
 //                Text("FCB ${viewModel.homeScore} - ") //TODO: mostrar nom equips
 //                Text("${viewModel.awayScore} Liceo")
-                Text("FCB 3 - 1 Liceo")
 
-            }
-        },
-        actions = {
-            IconButton(onClick = { viewModel?.timeController() }) { //TODO: revisar
-                Icon(
-                    imageVector = if (timeRunning)
-                        Icons.Filled.Pause
-                    else
-                        Icons.Filled.PlayArrow,
-                    contentDescription = if (timeRunning)
-                        "Pause"
-                    else "Play"
-                )
-            }
-            Text(timeLeft.formatAsMatchTime())
+                Row(verticalAlignment = Alignment.CenterVertically){
 
+                    IconButton(onClick = { viewModel?.timeController() }) { //TODO: revisar
+                        Icon(
+                            imageVector = if (timeRunning)
+                                Icons.Filled.Pause
+                            else
+                                Icons.Filled.PlayArrow,
+                            contentDescription = if (timeRunning)
+                                "Pause"
+                            else "Play"
+                        )
+                    }
 
-            if(halfs != null &&currentHalf < halfs){ //TODO: revisar
-                Button(onClick = {
-                    viewModel.setToNextHalf() //avancem de part
-                    viewModel.resetTimeLeft() //reiniciem el temps
-                }){
-                    Text("Avançar a següent part")
+                    Text(timeLeft.formatAsMatchTime())
                 }
-            }
-            else{
-                Button(onClick = {navController.navigate("home")}){
-                    Text("Finalitzar partit")
-                }
-            }
 
-        }
-    )
+                Text("FCB 4 - 1 Liceo")
+
+                if(halfs != null &&currentHalf < halfs){ //TODO: revisar
+                    Button(onClick = {
+                        viewModel.setToNextHalf() //avancem de part
+                        viewModel.resetTimeLeft() //reiniciem el temps
+                    }){
+                        Text("Avançar a següent part")
+                    }
+                }
+                else{
+                    Button(onClick = {navController.navigate("home")}){
+                        Text("Finalitzar partit")
+                    }
+                }
+
+
+
+            }
+        })
 }
 
 @Composable
