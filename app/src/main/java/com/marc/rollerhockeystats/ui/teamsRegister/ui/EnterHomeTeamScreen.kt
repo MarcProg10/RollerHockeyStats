@@ -41,7 +41,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -68,11 +70,13 @@ import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 @Composable
 fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesViewModel : MatchesViewModel) {
 
+    Log.d("EnterHomeTeamScreen", "Creant instància MatchViewModel amb matchId: $matchId")
     val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
+    Log.d("EnterHomeTeamScreen", "MatchViewModel creat: $viewModel")
 
     var teamName by remember { mutableStateOf("") }
-    val staff by remember { derivedStateOf { viewModel.getStaff("home") }} //màxim 5 components
-    val teamPlayers by remember { derivedStateOf { viewModel.getPlayers("home")}} //màxim 10 components
+    val teamPlayers = remember { mutableStateListOf<Player>() }
+    val staff = remember { mutableStateListOf<StaffMember>() }
 
     var playerName by remember { mutableStateOf("") }
     var playerNumber by remember { mutableStateOf("") }
@@ -151,8 +155,10 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                     onClick = {
                         val playerNumberInt = playerNumber.toInt() //or null???
                         val player = Player.create(playerName, playerNumberInt) //es crea el jugador entrat
+                        Log.d("EnterHomeTeamScreen", "Player creat: $player")
                         if (player.isValid() && teamPlayers.size < 10) {
-                            viewModel.addPlayer(player, "home")
+                            Log.d("EnterHomeTeamScreen", "Actualitzant llista players local amb $player")
+                            teamPlayers += player
                             playerName = ""
                             playerNumber = ""
                         } else if (teamPlayers.size >= 10)
@@ -194,8 +200,10 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                 Button(
                     onClick = {
                         val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
+                        Log.d("EnterHomeTeamScreen", "StaffMember creat: $staffMember")
                         if (staffMember.isValid() && staff.size < 5) {
-                            viewModel.addStaffMember(staffMember, "home")
+                            Log.d("EnterHomeTeamScreen", "Actualitzant staff amb $staffMember")
+                            staff += staffMember
                             staffMemberName = ""
                             staffMemberRole = ""
                         } else if (staff.size >= 5)
@@ -211,13 +219,8 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
 
                 Spacer(modifier = Modifier.height(30.dp))
                 Button(onClick = {
-                    val homeTeam = Team(
-                        teamName = teamName,
-                        staff = staff,
-                        teamPlayers = teamPlayers,
-                        isHome = true
-                        )
-                    viewModel.updateTeam("home",homeTeam)
+
+                    viewModel.updateTeam("home", teamName, teamPlayers, staff)
                     viewModel.saveMatchToFirebase()
                     viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
                     navController.navigate("enterAwayTeam/$matchId") }) {
@@ -303,6 +306,11 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
             }
         }
     }
+}
+
+@Composable
+fun ForceRecompose() {
+    currentRecomposeScope.invalidate()
 }
 
 

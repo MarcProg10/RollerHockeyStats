@@ -177,6 +177,7 @@ fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHo
                 onClick = {
 
                     //TODO: comprovar que cap camp sigui blank
+                    //TODO: revisar que les vals de match s'inicialitzin bé
                     coroutineScope.launch {
                         val match = Match(
                             id = matchId,

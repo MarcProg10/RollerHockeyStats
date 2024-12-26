@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,8 +63,8 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
     val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
 
     var teamName by remember { mutableStateOf("") }
-    val staff by remember { derivedStateOf { viewModel.getStaff("home") } } //màxim 5 components
-    val teamPlayers by remember { derivedStateOf { viewModel.getPlayers("home")} } //màxim 10 components
+    val teamPlayers = remember {  mutableStateListOf<Player>() }
+    val staff = remember {mutableStateListOf<StaffMember>()}
 
     var playerName by remember { mutableStateOf("") }
     var playerNumber by remember { mutableStateOf("") }
@@ -144,7 +145,7 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                         val playerNumberInt = playerNumber.toInt() //or null???
                         val player = Player.create(playerName, playerNumberInt)
                         if (player.isValid() && teamPlayers.size < 10) {
-                            viewModel.addPlayer(player, "away")
+                            teamPlayers += player
                             playerName = ""
                             playerNumber = ""
                         } else if (teamPlayers.size >= 10)
@@ -187,7 +188,7 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                     onClick = {
                         val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
                         if (staffMember.isValid() && staff.size < 5) {
-                            viewModel.addStaffMember(staffMember, "home")
+                            staff += staffMember
                             staffMemberName = ""
                             staffMemberRole = ""
                         } else if (staff.size >= 5)
@@ -209,7 +210,7 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                         teamPlayers = teamPlayers,
                         isHome = false
                     )
-                    viewModel.updateTeam("away",awayTeam)
+                    viewModel.updateTeam("away", teamName, teamPlayers, staff)
                     viewModel.saveMatchToFirebase()
                     viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
                     navController.navigate("matchScreen/$matchId") }) {
