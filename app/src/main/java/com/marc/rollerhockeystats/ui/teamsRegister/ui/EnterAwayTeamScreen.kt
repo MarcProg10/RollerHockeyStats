@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -44,6 +46,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,6 +74,7 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
     var playerName by remember { mutableStateOf("") }
     var playerNumber by remember { mutableStateOf("") }
 
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     var staffMemberName by remember { mutableStateOf("") }
     var staffMemberRole by remember { mutableStateOf("") }
@@ -118,7 +124,9 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                     value = teamName,
                     onValueChange = { teamName = it },
                     label = { Text("Nom de l'equip visitant") },
-                    maxLines = 1
+                    maxLines = 1,
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                 )
 
                 Spacer(Modifier.height(10.dp))
@@ -129,21 +137,27 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                         value = playerName,
                         onValueChange = { playerName = it },
                         label = { Text("Nom") },
-                        maxLines = 1
+                        maxLines = 1,
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     TextField(
                         value = playerNumber,
                         onValueChange = { playerNumber = it },
                         label = { Text("Dorsal") },
-                        maxLines = 1
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                            keyboardType = KeyboardType.Number
+                        ),
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
                         val playerNumberInt = playerNumber.toInt() //or null???
-                        val player = Player.create(playerName, playerNumberInt)
+                        val player = Player.create(playerName, playerNumberInt, false)
                         if (player.isValid() && teamPlayers.size < 10) {
                             teamPlayers += player
                             playerName = ""
@@ -170,14 +184,18 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                         value = staffMemberName,
                         onValueChange = { staffMemberName = it },
                         label = { Text("Nom") },
-                        maxLines = 1
+                        maxLines = 1,
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     TextField(
                         value = staffMemberRole,
                         onValueChange = { staffMemberRole = it },
                         label = { Text("Rol") },
-                        maxLines = 1
+                        maxLines = 1,
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                     )
 
                 }

@@ -78,67 +78,6 @@ class MatchViewModel(matchId : String) : ViewModel() {
         _match.value = match
     }
 
-//    fun getStaff(whichTeam : String) : List<StaffMember>{
-//        if(whichTeam == "home"){
-//             return _match.value?.homeTeam?.staff ?: emptyList()
-//        }
-//        else if(whichTeam == "away"){
-//            return _match.value?.awayTeam?.staff ?: emptyList()
-//        }
-//        else
-//            return emptyList()
-//    }
-//
-//    fun getPlayers(whichTeam: String) : List<Player>{
-//        if(whichTeam == "home")
-//            return _match.value?.homeTeam?.teamPlayers ?: emptyList()
-//        else if(whichTeam == "away")
-//            return _match.value?.awayTeam?.teamPlayers ?: emptyList()
-//        else
-//            return emptyList()
-//    }
-
-    fun getStaff(whichTeam : String) : StateFlow<List<StaffMember>> {
-        return snapshotFlow {
-            _match.value?.let { match ->
-                if (whichTeam == "home")
-                    match.homeTeam?.staff?.toList()
-                else
-                    match.awayTeam?.staff?.toList()
-            } ?: emptyList()
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-    }
-
-    fun getPlayers(whichTeam : String) : List<Player>{
-        return _match.value?.let { match ->
-            if(whichTeam == "home")
-                match.homeTeam?.teamPlayers?.toList()
-            else
-                match.awayTeam?.teamPlayers?.toList()
-        } ?: emptyList()
-    }
-
-
-
-    fun addStaffMember(staffMember : StaffMember, whichTeam : String){
-        if(whichTeam == "home"){
-            _match.update { thisMatch -> thisMatch?.copy(
-                homeTeam = thisMatch.homeTeam?.copy(
-                    staff = (thisMatch.homeTeam.staff + staffMember).toList()
-                )
-            )
-            }
-        }
-        else if(whichTeam == "away"){
-            _match.update { thisMatch -> thisMatch?.copy(
-                awayTeam = thisMatch.awayTeam?.copy(
-                    staff = thisMatch.awayTeam.staff + staffMember
-                )
-            )}
-        }
-    }
-
-
     fun updateTeam(whichTeam : String, name : String, players : List<Player>, staff : List<StaffMember>  ){
 
         if(whichTeam == "home") {
@@ -154,27 +93,10 @@ class MatchViewModel(matchId : String) : ViewModel() {
             val team = Team(
                 teamName = name,
                 teamPlayers = players,
-                staff = staff
+                staff = staff,
+                isHome = false
             )
             _match.update { it?.copy(awayTeam = team) }
-        }
-    }
-
-    fun updateTeamName(whichTeam : String, name : String){
-        if(whichTeam == "home" && name != ""){
-            _match.value = _match.value?.copy(
-                homeTeam = _match.value?.homeTeam?.copy(
-                    teamName = name,
-                    isHome = true
-                )
-            )
-        }
-        else if(whichTeam == "away" && name != ""){
-            _match.value = _match.value?.copy(
-                awayTeam = _match.value?.homeTeam?.copy(
-                    teamName = name
-                )
-            )
         }
     }
 
@@ -190,12 +112,8 @@ class MatchViewModel(matchId : String) : ViewModel() {
     }
 
     fun setToNextHalf(){
-        _currentHalf.value++
+        _match.value?.increaseHalf()
     }
-
-
-
-
 
     fun timeController(){
         _timeRunning.value = ! _timeRunning.value
@@ -213,64 +131,57 @@ class MatchViewModel(matchId : String) : ViewModel() {
         _timeLeft.value = _match.value!!.minutes
     }
 
-    fun registerAction(action : Action, currentPart : Int){
+    fun registerAction(action : Action, currentPart : Int, player : Player){
         viewModelScope.launch{
-            updateMatchWithAction(action,currentPart)
+            updateMatchWithAction(action,currentPart, player)
         }
     }
 
-    private fun updateMatchWithAction(action : Action, currentPart : Int){
-        val player = action.player
-        val selectedAction = action.actionType
-        val isHomeTeam = action.homeTeam
+    private fun updateMatchWithAction(action : Action, currentPart : Int, player : Player){
 
-        val actionsList = when(currentPart){
-            1 -> player.firstHalfActions.toMutableList()
-            2 -> player.secondHalfActions.toMutableList()
-            3 -> player.thirdHalfActions.toMutableList()
-            4 -> player.fourthHalfActions.toMutableList()
-            else -> mutableListOf()
-        }
+        Log.d("MatchViewModel", "Inici actualització partit amb acció")
+        var playerToUpdate = player
+        val isHome = action.homeTeam
+        Log.d("MatchViewModel", "Dades subjecte acció: $playerToUpdate")
+        Log.d("MatchViewModel", "Acció a desar: $action")
+        val actionsList = playerToUpdate.getPlayerActions(currentPart).toMutableList()
+
+        Log.d("MatchViewModel", "Llistat d'accions: $actionsList")
         actionsList.add(action)
+        Log.d("MatchViewModel", "Llistat d'accions part {$currentPart} actualitzada: $actionsList")
 
-        val updatedPlayer = when(selectedAction){
-            "Gol" -> {
-                if(isHomeTeam)
-                    _homeScore.value++
-                else
-                    _awayScore.value++
-                player.copy(goals = player.goals + 1)
-
-            }
-            "Tir" -> player.copy(shots = player.shots + 1)
-            "Tir a porteria" -> player.copy(shotsOnGoal = player.shotsOnGoal + 1)
-            "Assist" -> player.copy(assists = player.assists + 1)
-            "Falta" -> {
-
-                if(isHomeTeam)
-                    _homeFouls.value++
-                else
-                    _awayFouls.value++
-                player.copy(fouls = player.fouls + 1)
-            }
-            "Blava" -> player.copy(blueCards = player.blueCards + 1)
-            "Vermella" -> player.copy(redCards = player.redCards + 1)
-
-            else -> player
+        //actualitzem el llistat d'accions del jugador
+        if(actionsList.isNotEmpty()){
+            playerToUpdate = playerToUpdate.updatePlayerActions(actionsList, currentPart)
+            Log.d("MatchViewModel", "Jugador actualitzat: $playerToUpdate")
         }
-
-        val updatedTeam = if(isHomeTeam)
-                _match.value?.homeTeam?.updatePlayer(updatedPlayer)
-        else
-            _match.value?.awayTeam?.updatePlayer(updatedPlayer)
-
-        _match.update { thisMatch ->
-            if(isHomeTeam)
-                thisMatch?.copy(homeTeam = updatedTeam ?: thisMatch.homeTeam)
-            else
-                thisMatch?.copy(awayTeam = updatedTeam ?: thisMatch.awayTeam)
-        }
-
+//
+//        //actualitzem estadístiques del jugador
+//        playerToUpdate.updatePlayerStats(action)
+//        Log.d("MatchViewModel", "stats jugador actualitzades: $playerToUpdate")
+//
+//        //actualitzem stats de l'equip
+//        if(action.actionType == "Gol" || action.actionType == "Falta")
+//            _match.value?.updateStats(action)
+//
+//        //actualitzem l'equip corresponent al jugador
+//        var teamToUpdate: Team?
+//        if(isHome){
+//            teamToUpdate = _match.value?.homeTeam
+//            teamToUpdate?.updateTeamPlayer(playerToUpdate)
+//            Log.d("MatchViewModel", "Equip actualitzat: $teamToUpdate")
+//        }
+//        else{
+//            teamToUpdate = _match.value?.awayTeam
+//            teamToUpdate?.updateTeamPlayer(playerToUpdate)
+//            Log.d("MatchViewModel", "Equip actualitzat: $teamToUpdate")
+//        }
+//
+//        //actualitzem partit
+//        if (teamToUpdate != null) {
+//            _match.value?.updateTeamMatch(teamToUpdate)
+//        }
+//        Log.d("MatchViewModel", "Partit actualitzat: ${_match.value}")
     }
 
 

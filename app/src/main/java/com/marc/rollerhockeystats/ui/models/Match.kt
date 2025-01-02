@@ -7,14 +7,15 @@ data class Match(
     val selectedDate : Long?,
     val halfs : Int = 0,
     val minutes : Int = 0,
-    val homeTeam : Team? = null,
-    val awayTeam : Team? = null,
-    val finished : Boolean = false,
-    val homeScore : Int = 0,
-    val awayScore : Int = 0,
-    val homeFouls : Int = 0,
-    val awayFouls : Int = 0,
-    val timeLeft : Int = 0
+    var homeTeam : Team? = null,
+    var awayTeam : Team? = null,
+    var finished : Boolean = false,
+    var homeScore : Int = 0,
+    var awayScore : Int = 0,
+    var homeFouls : Int = 0,
+    var awayFouls : Int = 0,
+    var timeLeft : Int = 0,
+    var currentHalf : Int = 1
 ){
     constructor() : this(
         id = "",
@@ -30,6 +31,38 @@ data class Match(
         awayScore = 0,
         homeFouls = 0,
         awayFouls = 0,
-        timeLeft = 0
+        timeLeft = 0,
+        currentHalf = 0
     )
+
+    fun updateTeamMatch(teamToUpdate: Team){
+        if(teamToUpdate.isHome){
+            homeTeam = teamToUpdate
+        }
+        else{
+            awayTeam = teamToUpdate
+        }
+    }
+
+    fun updateStats(action : Action){
+        val isHome = action.homeTeam
+        if(isHome){
+            when(action.actionType){
+                "Gol" -> homeScore++
+                "Falta" -> homeFouls++
+            }
+        }
+        else{
+            when(action.actionType){
+                "Gol" -> awayScore++
+                "Falta" -> awayFouls++
+            }
+        }
+    }
+
+    fun increaseHalf(){
+        currentHalf++
+    }
 }
+
+

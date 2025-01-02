@@ -7,16 +7,18 @@ data class Team(
     val isHome : Boolean = false
 ) {
 
-    fun updatePlayer(updatedPlayer: Player): Team {
-        val index = teamPlayers.indexOfFirst { it.id == updatedPlayer.id }
+    fun updateTeamPlayer(playerToUpdate: Player): Team {
+        val index = teamPlayers.indexOfFirst { it.id == playerToUpdate.id }
         if(index != -1){
             return copy(
                 teamPlayers = teamPlayers.toMutableList().also{
-                    it[index] = updatedPlayer
+                    it[index] = playerToUpdate
                 }
             )
         }
         return this
     }
+
+
 
 }

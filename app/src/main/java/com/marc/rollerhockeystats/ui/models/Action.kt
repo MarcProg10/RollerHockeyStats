@@ -4,7 +4,6 @@ import androidx.compose.ui.geometry.Offset
 
 data class Action(
 
-    val player : Player,
     val homeTeam : Boolean = false,
     //utilitzem l'enum ActionType, el qual s'ha de convertir a String (incompatibilitats Firebase)
     //al recuperar-lo de Firebase, s'ha de passar de String a ActionType

@@ -186,6 +186,7 @@ fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHo
                             minutes = minutesText.toInt(),
                             ubication = ubication,
                             selectedDate = selectedDate,
+                            timeLeft = minutesText.toInt(),
                             finished = false,
                             homeTeam = Team(),
                             awayTeam = Team()

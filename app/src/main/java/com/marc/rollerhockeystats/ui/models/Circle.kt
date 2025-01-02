@@ -9,13 +9,13 @@ data class Circle(
 ){
     val color: Color
         get() = when(actionType){
-            "Gol" -> Color.Magenta
-            "Tir" -> Color.Gray
-            "T.porta" -> Color.Green
-            "Assist" -> Color.Cyan
-            "Falta" -> Color.Yellow
-            "Blava" -> Color.Blue
-            "Vermella" -> Color.Red
+            ActionTypes.GOAL -> Color.Magenta
+            ActionTypes.SHOT -> Color.Gray
+            ActionTypes.SHOT_ON_GOAL -> Color.Green
+            ActionTypes.ASSIST -> Color.Cyan
+            ActionTypes.FOUL -> Color.Yellow
+            ActionTypes.BLUE_CARD -> Color.Blue
+            ActionTypes.RED_CARD -> Color.Red
             else -> Color.Black
         }
 }
