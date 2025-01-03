@@ -245,8 +245,6 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                     navController.navigate("enterAwayTeam/$matchId") }) {
                     Text(text = "Registrar equip local".uppercase())
                 }
-
-
             }
             Surface(
                 modifier = Modifier

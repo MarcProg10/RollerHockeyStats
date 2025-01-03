@@ -1,47 +1,32 @@
 package com.marc.rollerhockeystats.ui.match.ui
 
-import android.annotation.SuppressLint
-import android.app.Notification
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.R
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,10 +34,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -320,11 +303,11 @@ fun BottomBar(selectedAction : String?, onActionSelected : (String) -> Unit, act
 fun HockeyRink(
     matchViewModel: MatchViewModel,
     selectedPlayer: Player?,
-    selectedAction : String?,
-    currentPart : Int,
-    modifier : Modifier = Modifier,
-    actionColorMap : Map<String,Color>
-){
+    selectedAction: String?,
+    currentPart: Int,
+    modifier: Modifier = Modifier,
+    actionColorMap: Map<String, Color>
+) {
 
     var circle by remember {mutableStateOf<Circle?>(null)}
     val circleColor by remember(selectedAction){
@@ -332,8 +315,13 @@ fun HockeyRink(
     }
     Log.d("HockeyRink", "Entrant acció amb $selectedPlayer i $selectedAction")
 
-    LaunchedEffect(selectedAction){
+    var currentAction by remember {mutableStateOf<String?>(null)}
+    var currentPlayer by remember {mutableStateOf<Player?>(null)}
+
+    LaunchedEffect(selectedAction, selectedPlayer){
         circle = null
+        currentAction = selectedAction
+        currentPlayer = selectedPlayer
     }
 
     Box(modifier = Modifier){
@@ -344,17 +332,17 @@ fun HockeyRink(
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        if (selectedPlayer != null && selectedAction != null) {
-                            Log.d("RinkHockey", "Just abans de crear acció: $selectedPlayer - $selectedAction")
+                        if (currentPlayer != null && currentAction != null) {
+                            Log.d("RinkHockey", "Just abans de crear acció: $currentPlayer - $currentAction")
                             val action = Action(
-                                homeTeam = selectedPlayer.isHome,
-                                actionType = selectedAction,
+                                homeTeam = currentPlayer!!.ishome,
+                                actionType = currentAction!!,
                                 position = offset
                             )
                             Log.d("MatchScreen", "Nova acció creada: ${action.actionType}")
-                            matchViewModel.registerAction(action, currentPart, selectedPlayer)
+                            matchViewModel.registerAction(action, currentPart, currentPlayer!!)
                             matchViewModel.saveMatchToFirebase()
-                            circle = Circle(offset, selectedAction)
+                            circle = Circle(offset, currentAction!!)
 
                         }
                     }

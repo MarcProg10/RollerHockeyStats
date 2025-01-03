@@ -1,5 +1,6 @@
 package com.marc.rollerhockeystats.ui.teamsRegister.ui
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -65,7 +66,12 @@ import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 @Composable
 fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesViewModel: MatchesViewModel ){
 
+    Log.d("EnterAwayTeamScreen", "Creant instància MatchViewModel amb matchId: $matchId")
     val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
+    Log.d("EnterAwayTeamScreen", "MatchViewModel creat: $viewModel")
+
+    val match by viewModel.match.collectAsState()
+    Log.d("EnterAwayTeamScreen", "Match home team actual: ${match?.homeTeam}")
 
     var teamName by remember { mutableStateOf("") }
     val teamPlayers = remember {  mutableStateListOf<Player>() }
@@ -221,15 +227,13 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
+                Log.d("EnterAwayTeamScreen", "Abans d'onClick ${match?.homeTeam}")
                 Button(onClick = {
-                    val awayTeam = Team(
-                        teamName = teamName,
-                        staff = staff,
-                        teamPlayers = teamPlayers,
-                        isHome = false
-                    )
+                    Log.d("EnterAwayTeamScreen", "Abans updateTeam ${viewModel.match.value}")
                     viewModel.updateTeam("away", teamName, teamPlayers, staff)
+                    Log.d("EnterAwayTeamScreen", "Abans saveMatchToFirebase ${viewModel.match.value}")
                     viewModel.saveMatchToFirebase()
+                    Log.d("EnterAwayTeamScreen", "Després saveMatchToFirebase ${viewModel.match.value}")
                     viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
                     navController.navigate("matchScreen/$matchId") }) {
                     Text(text = "Registrar equip visitant".uppercase())

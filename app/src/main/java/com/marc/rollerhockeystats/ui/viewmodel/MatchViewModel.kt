@@ -1,14 +1,11 @@
 package com.marc.rollerhockeystats.ui.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.marc.rollerhockeystats.ui.models.Action
@@ -18,10 +15,7 @@ import com.marc.rollerhockeystats.ui.models.StaffMember
 import com.marc.rollerhockeystats.ui.models.Team
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -85,7 +79,7 @@ class MatchViewModel(matchId : String) : ViewModel() {
                 teamName = name,
                 teamPlayers = players,
                 staff = staff,
-                isHome = true
+                ishometeam = true
             )
             _match.update { it?.copy(homeTeam = team) }
         }
@@ -94,7 +88,7 @@ class MatchViewModel(matchId : String) : ViewModel() {
                 teamName = name,
                 teamPlayers = players,
                 staff = staff,
-                isHome = false
+                ishometeam = false
             )
             _match.update { it?.copy(awayTeam = team) }
         }

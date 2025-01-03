@@ -36,7 +36,7 @@ data class Match(
     )
 
     fun updateTeamMatch(teamToUpdate: Team){
-        if(teamToUpdate.isHome){
+        if(teamToUpdate.ishometeam){
             homeTeam = teamToUpdate
         }
         else{

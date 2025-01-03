@@ -4,7 +4,7 @@ data class Player(
     val id: String = "",
     val name: String = "",
     val number: Int = 0,
-    val isHome: Boolean = false,
+    val ishome: Boolean = false,
     //revisar que poden ser null
     //poden arribar a disputar-se fins a quatre parts (Prebenjamins)
     var firstHalfActions: List<Action> = mutableListOf(),
@@ -26,7 +26,7 @@ data class Player(
 {
     companion object {
         fun create(newName : String, newNumber : Int, isHomePlayer: Boolean) : Player{
-            return Player(name = newName, number = newNumber, isHome = isHomePlayer  )
+            return Player(name = newName, number = newNumber, ishome = isHomePlayer  )
         }
     }
 
