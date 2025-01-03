@@ -91,7 +91,7 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
 
 
     Scaffold(
-        topBar = { MatchTopBar(matchViewModel,navController)},
+        topBar = { MatchTopBar(matchViewModel,navController, matchId)},
         bottomBar = { BottomBar(
                         selectedAction = selectedAction,
                         onActionSelected = { action ->
@@ -173,7 +173,7 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchTopBar(viewModel : MatchViewModel, navController: NavController){
+fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchId : String){
 
     val timeLeft by viewModel.timeLeft.collectAsState()
     val timeRunning by viewModel.timeRunning.collectAsState()
@@ -219,7 +219,9 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController){
                     }
                 }
                 else{
-                    Button(onClick = {navController.navigate("home")}){
+                    Button(onClick = {
+                        navController.navigate("matchStatsScreen/${matchId}")
+                    }){
                         Text("Finalitzar partit")
                     }
                 }
@@ -303,7 +305,7 @@ fun BottomBar(selectedAction : String?, onActionSelected : (String) -> Unit, act
         for((action, color) in actionColorMap){
             Button(
                 onClick = { onActionSelected(action)
-                            Log.d("MatchScreen", "Bottom Bar: Nova acció seleccionada: $selectedAction")
+                            Log.d("MatchScreen", "Bottom Bar: Nova acció seleccionada: $action")
                           },
                 colors = ButtonDefaults.buttonColors(containerColor = color),
                 modifier = Modifier.weight(1f)
@@ -328,6 +330,7 @@ fun HockeyRink(
     val circleColor by remember(selectedAction){
         mutableStateOf(actionColorMap[selectedAction] ?: Color.Black)
     }
+    Log.d("HockeyRink", "Entrant acció amb $selectedPlayer i $selectedAction")
 
     LaunchedEffect(selectedAction){
         circle = null
@@ -342,6 +345,7 @@ fun HockeyRink(
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
                         if (selectedPlayer != null && selectedAction != null) {
+                            Log.d("RinkHockey", "Just abans de crear acció: $selectedPlayer - $selectedAction")
                             val action = Action(
                                 homeTeam = selectedPlayer.isHome,
                                 actionType = selectedAction,

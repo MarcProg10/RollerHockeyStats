@@ -113,6 +113,7 @@ class MatchViewModel(matchId : String) : ViewModel() {
 
     fun setToNextHalf(){
         _match.value?.increaseHalf()
+        _currentHalf.value++
     }
 
     fun timeController(){
