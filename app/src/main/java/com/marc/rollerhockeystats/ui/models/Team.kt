@@ -19,6 +19,16 @@ data class Team(
         return this
     }
 
+    fun updateTeamWithPlayer(playerToUpdate: Player) {
+        val index = teamPlayers.indexOfFirst { it.id == playerToUpdate.id }
+        if(index != -1){
+            copy(
+                teamPlayers = teamPlayers.toMutableList().also{
+                    it[index] = playerToUpdate
+                }
+            )
+        }
+    }
 
 
 }

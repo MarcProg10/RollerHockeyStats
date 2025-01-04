@@ -1,7 +1,7 @@
 package com.marc.rollerhockeystats.ui.models
 
 data class Player(
-    val id: String = "",
+    val id: String? = "",
     val name: String = "",
     val number: Int = 0,
     val ishome: Boolean = false,
@@ -54,15 +54,38 @@ data class Player(
         }
     }
 
-    fun updatePlayerStats(action : Action){
+    fun updatePlayerStats(action : Action) : Player {
+        return when(action.actionType){
+            "Gol" -> copy(goals = goals +1)
+            "Tir" -> copy(shots = shots + 1)
+            "T.porta" -> copy(shotsOnGoal = shotsOnGoal + 1)
+            "Assist" -> copy(assists = assists + 1)
+            "Falta" -> copy(fouls = fouls + 1)
+            "Vermella" -> copy(redCards = redCards + 1)
+            "Blava" -> copy(blueCards = blueCards + 1)
+            else -> this
+        }
+    }
+
+    fun addPlayerActions(action: Action, currentPart: Int) {
+        when(currentPart){
+            1 -> firstHalfActions = firstHalfActions + action
+            2 -> secondHalfActions = secondHalfActions + action
+            3 -> thirdHalfActions = thirdHalfActions + action
+            4 -> fourthHalfActions = fourthHalfActions + action
+        }
+
+    }
+
+    fun increaseStat(action: Action) {
         when(action.actionType){
             "Gol" -> goals++
             "Tir" -> shots++
             "T.porta" -> shotsOnGoal++
             "Assist" -> assists++
-            "Foul" -> fouls++
-            "Blava" -> blueCards++
+            "Falta" -> fouls++
             "Vermella" -> redCards++
+            "Blava" -> blueCards++
         }
     }
 }

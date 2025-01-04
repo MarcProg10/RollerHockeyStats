@@ -126,58 +126,57 @@ class MatchViewModel(matchId : String) : ViewModel() {
         _timeLeft.value = _match.value!!.minutes
     }
 
-    fun registerAction(action : Action, currentPart : Int, player : Player){
+    fun registerAction(action : Action, player : Player){
         viewModelScope.launch{
-            updateMatchWithAction(action,currentPart, player)
+            updateMatchWithAction(action,player)
         }
     }
 
-    private fun updateMatchWithAction(action : Action, currentPart : Int, player : Player){
+    private fun updateMatchWithAction(action : Action, player : Player){
 
         Log.d("MatchViewModel", "Inici actualització partit amb acció")
+        Log.d("MatchViewModel", "Player : $player")
         var playerToUpdate = player
+        var teamToUpdate : Team? = null
+        Log.d("MatchViewModel", "Player a actualitzar: $playerToUpdate")
         val isHome = action.homeTeam
         Log.d("MatchViewModel", "Dades subjecte acció: $playerToUpdate")
         Log.d("MatchViewModel", "Acció a desar: $action")
-        val actionsList = playerToUpdate.getPlayerActions(currentPart).toMutableList()
+        //val actionsList = playerToUpdate.getPlayerActions(currentPart).toMutableList()
 
-        Log.d("MatchViewModel", "Llistat d'accions: $actionsList")
-        actionsList.add(action)
-        Log.d("MatchViewModel", "Llistat d'accions part {$currentPart} actualitzada: $actionsList")
+        var newMatch = _match.value
+        playerToUpdate.addPlayerActions(action, currentHalf.value)
+        playerToUpdate.increaseStat(action)
 
-        //actualitzem el llistat d'accions del jugador
-        if(actionsList.isNotEmpty()){
-            playerToUpdate = playerToUpdate.updatePlayerActions(actionsList, currentPart)
-            Log.d("MatchViewModel", "Jugador actualitzat: $playerToUpdate")
+        if(action.homeTeam){
+            teamToUpdate = _match.value?.homeTeam
         }
-//
-//        //actualitzem estadístiques del jugador
-//        playerToUpdate.updatePlayerStats(action)
-//        Log.d("MatchViewModel", "stats jugador actualitzades: $playerToUpdate")
-//
-//        //actualitzem stats de l'equip
-//        if(action.actionType == "Gol" || action.actionType == "Falta")
-//            _match.value?.updateStats(action)
-//
-//        //actualitzem l'equip corresponent al jugador
-//        var teamToUpdate: Team?
-//        if(isHome){
-//            teamToUpdate = _match.value?.homeTeam
-//            teamToUpdate?.updateTeamPlayer(playerToUpdate)
-//            Log.d("MatchViewModel", "Equip actualitzat: $teamToUpdate")
-//        }
-//        else{
-//            teamToUpdate = _match.value?.awayTeam
-//            teamToUpdate?.updateTeamPlayer(playerToUpdate)
-//            Log.d("MatchViewModel", "Equip actualitzat: $teamToUpdate")
-//        }
-//
-//        //actualitzem partit
-//        if (teamToUpdate != null) {
-//            _match.value?.updateTeamMatch(teamToUpdate)
-//        }
-//        Log.d("MatchViewModel", "Partit actualitzat: ${_match.value}")
+        else{
+            teamToUpdate = _match.value?.awayTeam
+        }
+        if (teamToUpdate != null) {
+            teamToUpdate.updateTeamWithPlayer(playerToUpdate)
+        }
+        newMatch?.updateStats(action)
+        _match.value = newMatch
+
+        if(action.homeTeam){
+            when(action.actionType){
+                "Gol" -> _homeScore.value++
+                "Foul" -> _homeFouls.value++
+            }
+        }
+        else{
+            when(action.actionType){
+                "Gol" -> _awayScore.value++
+                "Foul" -> _awayFouls.value++
+            }
+        }
+
+        Log.d("MatchViewModel", "Partit actualitzat: ${_match.value}")
     }
 
-
+    fun setMatchAsFinished() {
+        _match.value?.finished = true
+    }
 }

@@ -49,6 +49,7 @@ import com.marc.rollerhockeystats.ui.models.Action
 import com.marc.rollerhockeystats.ui.models.Player
 import com.marc.rollerhockeystats.ui.models.ActionTypes
 import com.marc.rollerhockeystats.ui.models.Circle
+import com.marc.rollerhockeystats.ui.models.Position
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
 import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 
@@ -128,7 +129,8 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
                         bottom.linkTo(parent.bottom)
                     }
                     .fillMaxHeight(),
-                actionColorMap
+                actionColorMap,
+                matchesViewModel
             )
 
             AwayTeamBar(
@@ -161,6 +163,8 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchI
     val timeLeft by viewModel.timeLeft.collectAsState()
     val timeRunning by viewModel.timeRunning.collectAsState()
     val currentHalf by viewModel.currentHalf.collectAsState()
+    val homeScore by viewModel.homeScore.collectAsState()
+    val awayScore by viewModel.awayScore.collectAsState()
     val match by viewModel.match.collectAsState()
     val halfs = match?.halfs
 
@@ -187,10 +191,12 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchI
                     }
 
                     //Text("Part actual")
-                    Text(timeLeft.formatAsMatchTime()) //TODO: revisar funcionament
+                    //Text(timeLeft.formatAsMatchTime()) //TODO: revisar funcionament
+                    Text("PART ${currentHalf}/${halfs}")
+
                 }
 
-                Text("${match?.homeTeam?.teamName} ${match?.homeScore} - ${match?.awayScore} ${match?.awayTeam?.teamName}") //TODO: revisar reactivitat
+                Text("${match?.homeTeam?.teamName} ${homeScore} - ${awayScore} ${match?.awayTeam?.teamName}") //TODO: revisar reactivitat
 
                 if(halfs != null && currentHalf < halfs){ //TODO: revisar
                     Button(onClick = {
@@ -204,6 +210,8 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchI
                 else{
                     Button(onClick = {
                         navController.navigate("matchStatsScreen/${matchId}")
+                        viewModel.setMatchAsFinished()
+                        viewModel.saveMatchToFirebase()
                     }){
                         Text("Finalitzar partit")
                     }
@@ -306,7 +314,8 @@ fun HockeyRink(
     selectedAction: String?,
     currentPart: Int,
     modifier: Modifier = Modifier,
-    actionColorMap: Map<String, Color>
+    actionColorMap: Map<String, Color>,
+    matchesViewModel : MatchesViewModel
 ) {
 
     var circle by remember {mutableStateOf<Circle?>(null)}
@@ -333,17 +342,20 @@ fun HockeyRink(
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
                         if (currentPlayer != null && currentAction != null) {
-                            Log.d("RinkHockey", "Just abans de crear acció: $currentPlayer - $currentAction")
+                            Log.d(
+                                "RinkHockey",
+                                "Just abans de crear acció: $currentPlayer - $currentAction"
+                            )
                             val action = Action(
                                 homeTeam = currentPlayer!!.ishome,
                                 actionType = currentAction!!,
-                                position = offset
+                                position = Position(offset.x, offset.y)
                             )
                             Log.d("MatchScreen", "Nova acció creada: ${action.actionType}")
-                            matchViewModel.registerAction(action, currentPart, currentPlayer!!)
+                            matchViewModel.registerAction(action, currentPlayer!!)
                             matchViewModel.saveMatchToFirebase()
+                            matchesViewModel.updateMatch(matchViewModel.match.value!!)
                             circle = Circle(offset, currentAction!!)
-
                         }
                     }
                 }

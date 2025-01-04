@@ -35,13 +35,15 @@ data class Match(
         currentHalf = 0
     )
 
-    fun updateTeamMatch(teamToUpdate: Team){
+    fun updateTeamMatch(teamToUpdate: Team) : Match{
+
         if(teamToUpdate.ishometeam){
             homeTeam = teamToUpdate
         }
         else{
             awayTeam = teamToUpdate
         }
+        return this
     }
 
     fun updateStats(action : Action){
