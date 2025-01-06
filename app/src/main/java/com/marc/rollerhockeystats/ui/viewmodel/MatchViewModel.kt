@@ -27,9 +27,26 @@ class MatchViewModel(matchId : String) : ViewModel() {
 
     //aquesta estructuració aporta més seguretat: els atributs es poden modificar dins del viewModel, des de fora només llegir
 
-
     private val _match = MutableStateFlow<Match?>(null)
     val match : StateFlow<Match?> = _match
+
+    private val _rinkHockeyWidth = MutableStateFlow(1f)
+    val rinkHockeyWidth : StateFlow<Float> = _rinkHockeyWidth
+
+    private val _rinkHockeyHeight = MutableStateFlow(1f)
+    val rinkHockeyHeight : StateFlow<Float> = _rinkHockeyHeight
+
+    private val _statsScreen1Width = MutableStateFlow(1f)
+    val statsScreen1Width : StateFlow<Float> = _statsScreen1Width
+
+    private val _statsScreen2Width = MutableStateFlow(1f)
+    val statsScreen2Width : StateFlow<Float> = _statsScreen2Width
+
+    private val _statsScreen1Height = MutableStateFlow(1f)
+    val statsScreen1Height : StateFlow<Float> = _statsScreen1Height
+
+    private val _statsScreen2Height = MutableStateFlow(1f)
+    val statsScreen2Height : StateFlow<Float> = _statsScreen2Height
 
     init {
         // Carrega les dades del partit de Firebase
@@ -139,7 +156,6 @@ class MatchViewModel(matchId : String) : ViewModel() {
         var playerToUpdate = player
         var teamToUpdate : Team? = null
         Log.d("MatchViewModel", "Player a actualitzar: $playerToUpdate")
-        val isHome = action.homeTeam
         Log.d("MatchViewModel", "Dades subjecte acció: $playerToUpdate")
         Log.d("MatchViewModel", "Acció a desar: $action")
         //val actionsList = playerToUpdate.getPlayerActions(currentPart).toMutableList()
@@ -178,5 +194,23 @@ class MatchViewModel(matchId : String) : ViewModel() {
 
     fun setMatchAsFinished() {
         _match.value?.finished = true
+    }
+
+    fun updateRinkHockeyWidth(width: Float) {
+        _match.value?.rinkWidth = width
+    }
+
+    fun updateRinkHockeyHeight(height: Float) {
+        _match.value?.rinkHeight = height
+    }
+
+    fun updateStatsScreen1Width(width: Float) {
+        _statsScreen1Width.value = width
+
+    }
+
+    fun updateStatsScreen1Height(height: Float) {
+        _statsScreen1Height.value = height
+
     }
 }

@@ -1,5 +1,7 @@
 package com.marc.rollerhockeystats.ui.models
 
+import androidx.compose.ui.text.font.FontWeight
+
 data class Match(
     val id : String? = "",
     val category : String = "",
@@ -15,7 +17,10 @@ data class Match(
     var homeFouls : Int = 0,
     var awayFouls : Int = 0,
     var timeLeft : Int = 0,
-    var currentHalf : Int = 1
+    var currentHalf : Int = 1,
+    var rinkWidth : Float = 1f,
+    var rinkHeight : Float = 1f,
+
 ){
     constructor() : this(
         id = "",
@@ -32,19 +37,10 @@ data class Match(
         homeFouls = 0,
         awayFouls = 0,
         timeLeft = 0,
-        currentHalf = 0
+        currentHalf = 0,
+        rinkWidth = 1f,
+        rinkHeight = 1f
     )
-
-    fun updateTeamMatch(teamToUpdate: Team) : Match{
-
-        if(teamToUpdate.ishometeam){
-            homeTeam = teamToUpdate
-        }
-        else{
-            awayTeam = teamToUpdate
-        }
-        return this
-    }
 
     fun updateStats(action : Action){
         val isHome = action.homeTeam
@@ -64,6 +60,20 @@ data class Match(
 
     fun increaseHalf(){
         currentHalf++
+    }
+
+    fun isPrebenjami() : Boolean{
+        if(halfs == 4)
+            return true
+        return false
+    }
+
+    fun updateRinkHockeyWidth(width: Float) {
+        rinkWidth = width
+    }
+
+    fun updateRinkHockeyHeight(height: Float) {
+        rinkHeight = height
     }
 }
 

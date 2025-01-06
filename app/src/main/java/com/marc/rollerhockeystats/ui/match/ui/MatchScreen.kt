@@ -361,6 +361,11 @@ fun HockeyRink(
                 }
         )
         Canvas(modifier = Modifier.fillMaxSize()){
+            matchViewModel.updateRinkHockeyWidth(size.width)
+            matchViewModel.updateRinkHockeyHeight(size.height)
+            matchViewModel.saveMatchToFirebase()
+            Log.d("MatchScreen", "{Width:${matchViewModel.match.value?.rinkWidth} Height:${matchViewModel.match.value?.rinkHeight}")
+
             circle?.let {
                 drawCircle(circleColor, radius = 14f, center = it.position)
                 Log.d("HockeyRink", "Dibuixant cercle: ${it.position}")
