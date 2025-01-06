@@ -1,12 +1,11 @@
 package com.marc.rollerhockeystats.ui.models
 
-import androidx.compose.ui.text.font.FontWeight
 
 data class Match(
     val id : String? = "",
     val category : String = "",
     val ubication : String = "",
-    val selectedDate : Long?,
+    val selectedDate : Long? = null,
     val halfs : Int = 0,
     val minutes : Int = 0,
     var homeTeam : Team? = null,
@@ -20,6 +19,7 @@ data class Match(
     var currentHalf : Int = 1,
     var rinkWidth : Float = 1f,
     var rinkHeight : Float = 1f,
+    var started : Boolean = false
 
 ){
     constructor() : this(
@@ -39,7 +39,8 @@ data class Match(
         timeLeft = 0,
         currentHalf = 0,
         rinkWidth = 1f,
-        rinkHeight = 1f
+        rinkHeight = 1f,
+        started = false
     )
 
     fun updateStats(action : Action){

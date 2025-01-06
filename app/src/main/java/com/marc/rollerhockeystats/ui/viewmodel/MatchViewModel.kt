@@ -213,4 +213,8 @@ class MatchViewModel(matchId : String) : ViewModel() {
         _statsScreen1Height.value = height
 
     }
+
+    fun setToStarted() {
+        _match.value?.started = true
+    }
 }

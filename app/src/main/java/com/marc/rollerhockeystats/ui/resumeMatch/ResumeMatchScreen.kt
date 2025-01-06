@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.loadFinishedMatch
+package com.marc.rollerhockeystats.ui.resumeMatch
 
 import android.util.Log
 import androidx.compose.foundation.clickable
@@ -34,17 +34,18 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoadMatchScreen(navController : NavController){
-    val matchesViewModel : MatchesViewModel = viewModel()
+fun ResumeMatchScreen(navController: NavController) {
+
+    val matchesViewModel: MatchesViewModel = viewModel()
     val matches = matchesViewModel.matches
     Log.d("LoadMatchScreen", "Partits a mostrar: $matches")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Visualitzar partit finalitzat") },
+                title = { Text("Reemprendre partit iniciat") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack()}) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Tornar enrere",
@@ -60,7 +61,7 @@ fun LoadMatchScreen(navController : NavController){
     ) { paddingValues ->
 
         Text(
-            text = "Selecciona partit a visualitzar",
+            text = "Selecciona partit a reemprendre",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(paddingValues)
@@ -71,22 +72,33 @@ fun LoadMatchScreen(navController : NavController){
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            if(matches.isEmpty()){
-                item{
+            if (matches.isEmpty()) {
+                item {
                     Text(
-                        text = "No hi ha cap partit finalitzat",
+                        text = "No hi ha cap partit a reemprendre",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-            else{
-                for(match in matches){
-                    if(match.finished){
-                        item{
-                            MatchCard(match, navController)
+            } else {
+                var count = 0
+                for (match in matches) {
+                    if (match.started && (!match.finished)) {
+                        item {
+                            ResumeMatchCard(match, navController)
                         }
+                        count++
+                    }
+                }
+                if (count == 0) {
+                    item {
+                        Text(
+                            text = "No hi ha cap partit a reemprendre",
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }
@@ -95,14 +107,13 @@ fun LoadMatchScreen(navController : NavController){
 }
 
 @Composable
-fun MatchCard(match: Match, navController: NavController) {
-
-    val date = match.selectedDate?.let { convertMillisToDate(it) } ?: "Data no especificada"
+fun ResumeMatchCard(match: Match, navController: NavController) {
+    val date = match.selectedDate?.let { convertMillisToDate(it) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { navController.navigate("matchStatsScreen/${match.id}") }
+            .clickable { navController.navigate("matchScreen/${match.id}") }
     ){
         Column(
             modifier = Modifier
@@ -120,6 +131,11 @@ fun MatchCard(match: Match, navController: NavController) {
                 color = Color.Gray
 
             )
+            Text(
+                text = "Part actual: ${match.currentHalf}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.DarkGray
+            )
 
         }
     }
@@ -129,3 +145,6 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
+
+
+

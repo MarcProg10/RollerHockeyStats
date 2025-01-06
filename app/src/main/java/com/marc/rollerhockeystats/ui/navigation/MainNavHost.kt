@@ -11,7 +11,9 @@ import com.marc.rollerhockeystats.ui.MatchStats.ui.MatchStatsScreen
 import com.marc.rollerhockeystats.ui.creatematch.ui.CreateMatchScreen
 import com.marc.rollerhockeystats.ui.home.ui.HomeScreen
 import com.marc.rollerhockeystats.ui.individualStats.IndividualStatsScreen
+import com.marc.rollerhockeystats.ui.loadFinishedMatch.LoadMatchScreen
 import com.marc.rollerhockeystats.ui.match.ui.MatchScreen
+import com.marc.rollerhockeystats.ui.resumeMatch.ResumeMatchScreen
 import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 import com.marc.rollerhockeystats.ui.teamsRegister.ui.EnterAwayTeamScreen
 import com.marc.rollerhockeystats.ui.teamsRegister.ui.EnterHomeTeamScreen
@@ -55,6 +57,14 @@ fun MainNavHost(matchesViewModel : MatchesViewModel){
             arguments = listOf(navArgument("matchId"){})){ backStackEntry ->
             val matchId = requireNotNull(backStackEntry.arguments?.getString("matchId"))
             IndividualStatsScreen(matchId, navController)
+        }
+
+        composable("loadFinishedMatch"){
+            LoadMatchScreen(navController)
+        }
+
+        composable("resumeMatch") {
+            ResumeMatchScreen(navController)
         }
 
 

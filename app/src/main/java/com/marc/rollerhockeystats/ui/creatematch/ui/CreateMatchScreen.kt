@@ -65,9 +65,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
-//TODO: s'ha de gestionar l'emmagatzament de selectedDate
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHostController){
@@ -90,7 +87,8 @@ fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHo
 
     val focusManager = LocalFocusManager.current //en quin element fa focus la UI
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
+    var showToast by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
@@ -137,7 +135,7 @@ fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHo
             TextField(
                 value = halfsText,
                 onValueChange = { halfsText = it  },
-                label = { Text("Parts") },
+                label = { Text("Parts (1-4)") },
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -170,39 +168,52 @@ fun CreateMatchScreen(matchesViewModel : MatchesViewModel, navController : NavHo
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            DatePickerFieldToModal()
+            selectedDate = datePickerFieldToModal()
 
             Spacer(modifier = Modifier.height(10.dp))
             Button(
                 onClick = {
 
-                    //TODO: comprovar que cap camp sigui blank
-                    //TODO: revisar que les vals de match s'inicialitzin bé
-                    coroutineScope.launch {
-                        val match = Match(
-                            id = matchId,
-                            category = matchCategory,
-                            halfs = halfsText.toInt(),
-                            minutes = minutesText.toInt(),
-                            ubication = ubication,
-                            selectedDate = selectedDate,
-                            timeLeft = minutesText.toInt(),
-                            finished = false,
-                            homeTeam = Team(),
-                            awayTeam = Team()
-                        ) //creació del partit
-                        viewModel.setMatch(match) //actualtizem partit al viewModel
-                        matchesViewModel.addMatch(match)
-                        saveMatch(match, matchReference) //desem partit
-                        navController.navigate("enterHomeTeam/$matchId")
+                    if(matchCategory.isEmpty() || halfsText.isEmpty() || minutesText.isEmpty() || ubication.isEmpty() || selectedDate == null){
+                        showToast = true
+                    }
+                    else if(halfsText.toInt() > 4 || halfsText.toInt() < 1){
+                        showToast = true
+                    }
+
+                    else{
+                        coroutineScope.launch {
+                            val match = Match(
+                                id = matchId,
+                                category = matchCategory,
+                                halfs = halfsText.toInt(),
+                                minutes = minutesText.toInt(),
+                                ubication = ubication,
+                                selectedDate = selectedDate,
+                                timeLeft = minutesText.toInt(),
+                                finished = false,
+                                homeTeam = Team(),
+                                awayTeam = Team()
+                            ) //creació del partit
+                            viewModel.setMatch(match) //actualtizem partit al viewModel
+                            matchesViewModel.addMatch(match)
+                            saveMatch(match, matchReference) //desem partit
+                            navController.navigate("enterHomeTeam/$matchId")
+                        }
                     }
                 })
             {
                 Text("Introduïr plantilles")
             }
+
+        }
+        if(showToast) {
+            ShowErrorToast("Tots els camps són obligatoris / revisa requisits de cada camp")
+            showToast = false
         }
     }
 }
+
 
 @Composable
 fun createMatchViewModel(matchId : String) : MatchViewModel {
@@ -215,9 +226,6 @@ fun ShowErrorToast(errorMessage : String){
     Toast.makeText(LocalContext.current, errorMessage, Toast.LENGTH_SHORT).show()
 }
 
-//funció per a desar un partit a Firebase Realtime Database
-//TODO: afegir no poder avançar de pantalla si no es desa correctament?
-
 private fun saveMatch(match : Match, matchReference : DatabaseReference){
 
     matchReference.setValue(match)
@@ -229,15 +237,15 @@ private fun saveMatch(match : Match, matchReference : DatabaseReference){
         }
 }
 
-
+//TODO: revisar selectedDate
 @Composable
-fun DatePickerFieldToModal(modifier: Modifier = Modifier) {
+fun datePickerFieldToModal(modifier: Modifier = Modifier) : Long? {
     var selectedDate by remember { mutableStateOf<Long?>(null) }
     var showModal by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = selectedDate?.let { convertMillisToDate(it) } ?: "",
-        onValueChange = { },
+        onValueChange = { selectedDate = it.toLongOrNull() },
         label = { Text("Seleccionar data") },
         placeholder = { Text("MM/DD/YYYY") },
         trailingIcon = {
@@ -263,6 +271,7 @@ fun DatePickerFieldToModal(modifier: Modifier = Modifier) {
             onDismiss = { showModal = false }
         )
     }
+    return selectedDate
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -297,10 +306,3 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))
 }
-
-
-//@Preview(showSystemUi = true, showBackground = true)
-//@Composable
-//fun CreateMatchPreview(){
-//    CreateMatchScreen()
-//}

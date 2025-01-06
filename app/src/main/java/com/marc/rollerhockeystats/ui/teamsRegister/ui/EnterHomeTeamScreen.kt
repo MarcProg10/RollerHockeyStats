@@ -18,14 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -35,7 +31,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,10 +38,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,14 +51,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.ui.models.Player
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
 import com.marc.rollerhockeystats.ui.models.StaffMember
-import com.marc.rollerhockeystats.ui.models.Team
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
 import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
 
@@ -156,7 +145,7 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                     TextField( //entrem dorsal del jugador/a
                         value = playerNumber,
                         onValueChange = { playerNumber = it },
-                        label = { Text("Dorsal") },
+                        label = { Text("Dorsal (0-99)") },
                         maxLines = 1,
                         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus()}),
                         keyboardOptions = KeyboardOptions(
@@ -168,22 +157,43 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        val playerNumberInt = playerNumber.toInt() //or null???
-                        val player = Player.create(playerName, playerNumberInt, true) //es crea el jugador entrat
-                        Log.d("EnterHomeTeamScreen", "Player creat: $player")
-                        if (player.isValid() && teamPlayers.size < 10) {
-                            Log.d("EnterHomeTeamScreen", "Actualitzant llista players local amb $player")
-                            teamPlayers += player
-                            playerName = ""
-                            playerNumber = ""
-                        } else if (teamPlayers.size >= 10)
-                            Toast.makeText(
-                                context,
-                                "No es poden afegir més membres a la plantilla!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        else
-                            println("Error al crear el membre de la plantilla")
+                         if(playerName.isEmpty() || playerNumber.isEmpty()){
+                             Toast.makeText(
+                                 context,
+                                 "Nom i dorsal obligatoris!",
+                                 Toast.LENGTH_SHORT
+                             ).show()
+                         }
+                         else {
+                             val playerNumberInt = playerNumber.toInt() //or null???
+                             val player = Player.create(
+                                 playerName,
+                                 playerNumberInt,
+                                 true
+                             ) //es crea el jugador entrat
+                             Log.d("EnterHomeTeamScreen", "Player creat: $player")
+                             if (player.isValid() && teamPlayers.size < 10) {
+                                 Log.d(
+                                     "EnterHomeTeamScreen",
+                                     "Actualitzant llista players local amb $player"
+                                 )
+                                 teamPlayers += player
+                                 playerName = ""
+                                 playerNumber = ""
+                             } else if (teamPlayers.size >= 10)
+                                 Toast.makeText(
+                                     context,
+                                     "No es poden afegir més membres a la plantilla!",
+                                     Toast.LENGTH_SHORT
+                                 ).show()
+                             else if (!player.isValid()) {
+                                 Toast.makeText(
+                                     context,
+                                     "Nom: màx 20 caràcters, Dorsal: 0-99",
+                                     Toast.LENGTH_SHORT
+                                 ).show()
+                             }
+                         }
 
                     }) {
                     Text("Introduïr membre plantilla")
@@ -218,19 +228,29 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
 
                 Button(
                     onClick = {
-                        val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
-                        Log.d("EnterHomeTeamScreen", "StaffMember creat: $staffMember")
-                        if (staffMember.isValid() && staff.size < 5) {
-                            Log.d("EnterHomeTeamScreen", "Actualitzant staff amb $staffMember")
-                            staff += staffMember
-                            staffMemberName = ""
-                            staffMemberRole = ""
-                        } else if (staff.size >= 5)
+
+                        if(staffMemberName.isEmpty() || staffMemberRole.isEmpty()) {
                             Toast.makeText(
                                 context,
-                                "No es poden afegir més de 5 membres d'staff!",
+                                "S'ha d'entrar Nom i Rol!",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        }
+                        else {
+                            val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
+                            Log.d("EnterHomeTeamScreen", "StaffMember creat: $staffMember")
+                            if (staffMember.isValid() && staff.size < 5) {
+                                Log.d("EnterHomeTeamScreen", "Actualitzant staff amb $staffMember")
+                                staff += staffMember
+                                staffMemberName = ""
+                                staffMemberRole = ""
+                            } else if (staff.size >= 5)
+                                Toast.makeText(
+                                    context,
+                                    "No es poden afegir més de 5 membres d'staff!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                        }
                     }
                 ) {
                     Text(text = "Afegir membre staff")
@@ -239,10 +259,30 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                 Spacer(modifier = Modifier.height(30.dp))
                 Button(onClick = {
 
-                    viewModel.updateTeam("home", teamName, teamPlayers, staff)
-                    viewModel.saveMatchToFirebase()
-                    viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
-                    navController.navigate("enterAwayTeam/$matchId") }) {
+                    if(teamPlayers.isEmpty()){
+                        Toast.makeText(
+                            context,
+                            "La plantilla ha de comptar, com a mínim, amb una persona participant",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else if(teamName.isEmpty()){
+                        Toast.makeText(
+                            context,
+                            "Tot equip ha de tenir un nom a defensar!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    else {
+                        viewModel.updateTeam("home", teamName, teamPlayers, staff)
+                        viewModel.saveMatchToFirebase()
+                        viewModel.match.value?.let { matchesViewModel.updateMatch(it) }
+                        navController.navigate("enterAwayTeam/$matchId")
+                    }
+
+                })
+                {
                     Text(text = "Registrar equip local".uppercase())
                 }
             }
@@ -324,15 +364,3 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
         }
     }
 }
-
-@Composable
-fun ForceRecompose() {
-    currentRecomposeScope.invalidate()
-}
-
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun EnterLocalPreview(navController: NavController){
-//    EnterHomeTeamScreen(navController)
-//}

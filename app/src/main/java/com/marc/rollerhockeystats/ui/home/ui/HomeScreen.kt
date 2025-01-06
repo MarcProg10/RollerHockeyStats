@@ -47,12 +47,12 @@ fun HomeScreen(navController: NavHostController) {
                 Text("Crear partit")
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = { /*CARREGAR PARTIT*/ }, modifier = Modifier.width(200.dp)) {
-                Text("Carregar partit")
+            Button(onClick = { navController.navigate("resumeMatch") }, modifier = Modifier.width(200.dp)) {
+                Text("Reemprendre partit")
 
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = { /*VISUALITZAR PARTIT*/ },modifier = Modifier.width(200.dp)) {
+            Button(onClick = { navController.navigate("loadFinishedMatch") },modifier = Modifier.width(200.dp)) {
                 Text("Visualitzar partit")
             }
         }

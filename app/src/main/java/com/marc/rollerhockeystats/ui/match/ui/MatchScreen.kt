@@ -25,16 +25,29 @@ import com.marc.rollerhockeystats.R
 import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ShortText
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,7 +86,6 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
         ActionTypes.RED_CARD to Color.Red
     )
 
-
     Scaffold(
         topBar = { MatchTopBar(matchViewModel,navController, matchId)},
         bottomBar = { BottomBar(
@@ -84,8 +96,6 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
                         },
                         actionColorMap
         )}
-
-
     ){ padding ->
         ConstraintLayout(
             modifier = Modifier
@@ -112,7 +122,6 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
                     }
                     .fillMaxHeight()
                     .zIndex(0.3f)
-                    //.width(80.dp)
             )
 
             HockeyRink(
@@ -150,7 +159,6 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
                         width = Dimension.value(80.dp)
                     }
                     .fillMaxHeight()
-                    //.width(80.dp)
             )
         }
     }
@@ -160,13 +168,12 @@ fun MatchScreen(matchId : String, navController: NavController, matchesViewModel
 @Composable
 fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchId : String){
 
-    val timeLeft by viewModel.timeLeft.collectAsState()
-    val timeRunning by viewModel.timeRunning.collectAsState()
     val currentHalf by viewModel.currentHalf.collectAsState()
     val homeScore by viewModel.homeScore.collectAsState()
     val awayScore by viewModel.awayScore.collectAsState()
     val match by viewModel.match.collectAsState()
     val halfs = match?.halfs
+    var showDialog by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
         title = {
@@ -178,27 +185,45 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchI
 
                 Row(verticalAlignment = Alignment.CenterVertically){
 
-                    IconButton(onClick = { viewModel.timeController() }) { //TODO: revisar
+                    IconButton(onClick = { showDialog = true }) {
                         Icon(
-                            imageVector = if (timeRunning)
-                                Icons.Filled.Pause
-                            else
-                                Icons.Filled.PlayArrow,
-                            contentDescription = if (timeRunning)
-                                "Pause"
-                            else "Play"
+                            imageVector = Icons.Rounded.Home,
+                            contentDescription = "Sortir"
                         )
                     }
 
-                    //Text("Part actual")
-                    //Text(timeLeft.formatAsMatchTime()) //TODO: revisar funcionament
+                    if(showDialog){
+                        BasicAlertDialog(
+                            onDismissRequest = { showDialog = false }
+                        ){
+                            Surface(
+                                modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+                                shape = MaterialTheme.shapes.large,
+                                tonalElevation = AlertDialogDefaults.TonalElevation
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        text =
+                                        "En cas de confirmar, se't redirigirà al menú principal i l'estat del partit es desarà",
+                                    )
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    TextButton(
+                                        onClick = { navController.navigate("home") },
+                                        modifier = Modifier.align(Alignment.End)
+                                    ) {
+                                        Text("Confirmar")
+                                    }
+                                }
+                            }
+                        }
+                    }
                     Text("PART ${currentHalf}/${halfs}")
 
                 }
 
-                Text("${match?.homeTeam?.teamName} ${homeScore} - ${awayScore} ${match?.awayTeam?.teamName}") //TODO: revisar reactivitat
+                Text("${match?.homeTeam?.teamName} ${match?.homeScore} - ${match?.awayScore} ${match?.awayTeam?.teamName}")
 
-                if(halfs != null && currentHalf < halfs){ //TODO: revisar
+                if(halfs != null && currentHalf < halfs){
                     Button(onClick = {
                         viewModel.setToNextHalf() //avancem de part
                         viewModel.resetTimeLeft() //reiniciem el temps
@@ -286,7 +311,6 @@ fun AwayTeamBar(viewModel : MatchViewModel, selectedPlayer : Player?, onPlayerSe
 @Composable
 fun BottomBar(selectedAction : String?, onActionSelected : (String) -> Unit, actionColorMap: Map<String, Color>){
 
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -373,11 +397,7 @@ fun HockeyRink(
         }
     }
 }
-    fun Int.formatAsMatchTime(): String {
-        val minutes = this / 60
-        val seconds = this % 60
-        return String.format("%02d:%02d", minutes, seconds)
-    }
+
 
 
 

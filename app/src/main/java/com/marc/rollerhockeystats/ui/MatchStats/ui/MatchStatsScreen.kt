@@ -88,6 +88,15 @@ fun MatchStatsScreen(matchId : String, navController : NavController) {
                 .wrapContentSize(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+
+            Text(
+                text = "${match?.category} (${match?.ubication})",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.wrapContentSize(Alignment.TopStart)
+            )
+            Spacer(Modifier.height(20.dp))
             Text(
                 text = "RESUM DEL PARTIT",
                 style = MaterialTheme.typography.headlineLarge,

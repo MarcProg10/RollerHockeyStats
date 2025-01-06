@@ -5,7 +5,6 @@ data class Player(
     val name: String = "",
     val number: Int = 0,
     val ishome: Boolean = false,
-    //revisar que poden ser null
     //poden arribar a disputar-se fins a quatre parts (Prebenjamins)
     var firstHalfActions: List<Action> = mutableListOf(),
     var secondHalfActions: List<Action> = mutableListOf(),
@@ -31,7 +30,7 @@ data class Player(
     }
 
     fun isValid(): Boolean {
-        return name.isNotEmpty() && name.length < 20 && number >= 0 && number <= 100
+        return name.isNotEmpty() && name.length < 20 && number >= 0 && number < 100
     }
 
     fun getPlayerActions(currentPart : Int) : List<Action>{

@@ -151,7 +151,7 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                     TextField(
                         value = playerNumber,
                         onValueChange = { playerNumber = it },
-                        label = { Text("Dorsal") },
+                        label = { Text("Dorsal (0-99") },
                         maxLines = 1,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done,
@@ -162,20 +162,35 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        val playerNumberInt = playerNumber.toInt() //or null???
-                        val player = Player.create(playerName, playerNumberInt, false)
-                        if (player.isValid() && teamPlayers.size < 10) {
-                            teamPlayers += player
-                            playerName = ""
-                            playerNumber = ""
-                        } else if (teamPlayers.size >= 10)
+                        if(playerName.isEmpty() || playerNumber.isEmpty()){
                             Toast.makeText(
                                 context,
-                                "No es poden afegir més membres a la plantilla!",
+                                "Nom i dorsal obligatoris!",
                                 Toast.LENGTH_SHORT
                             ).show()
-                        else
-                            println("Error al crear el membre de la plantilla")
+                        }
+                        else {
+                            val playerNumberInt = playerNumber.toInt() //or null???
+                            val player = Player.create(playerName, playerNumberInt, false)
+                            if (player.isValid() && teamPlayers.size < 10) {
+                                teamPlayers += player
+                                playerName = ""
+                                playerNumber = ""
+                            } else if (teamPlayers.size >= 10)
+                                Toast.makeText(
+                                    context,
+                                    "No es poden afegir més membres a la plantilla!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            else if(! player.isValid()){
+                                Toast.makeText(
+                                    context,
+                                    "Nom: màxim 20 caràcters, Dorsal: 0-99",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                        }
 
                     }) {
                     Text("Introduïr membre plantilla")
@@ -210,17 +225,26 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
 
                 Button(
                     onClick = {
-                        val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
-                        if (staffMember.isValid() && staff.size < 5) {
-                            staff += staffMember
-                            staffMemberName = ""
-                            staffMemberRole = ""
-                        } else if (staff.size >= 5)
+                        if(staffMemberName.isEmpty() || staffMemberRole.isEmpty()) {
                             Toast.makeText(
                                 context,
-                                "No es poden afegir més de 5 membres d'staff!",
+                                "S'ha d'entrar Nom i Rol!",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        }
+                        else {
+                            val staffMember = StaffMember.create(staffMemberName, staffMemberRole)
+                            if (staffMember.isValid() && staff.size < 5) {
+                                staff += staffMember
+                                staffMemberName = ""
+                                staffMemberRole = ""
+                            } else if (staff.size >= 5)
+                                Toast.makeText(
+                                    context,
+                                    "No es poden afegir més de 5 membres d'staff!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                        }
                     }
                 ) {
                     Text(text = "Afegir membre staff")
@@ -229,13 +253,30 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                 Spacer(modifier = Modifier.height(30.dp))
                 Log.d("EnterAwayTeamScreen", "Abans d'onClick ${match?.homeTeam}")
                 Button(onClick = {
-                    Log.d("EnterAwayTeamScreen", "Abans updateTeam ${viewModel.match.value}")
-                    viewModel.updateTeam("away", teamName, teamPlayers, staff)
-                    Log.d("EnterAwayTeamScreen", "Abans saveMatchToFirebase ${viewModel.match.value}")
-                    viewModel.saveMatchToFirebase()
-                    Log.d("EnterAwayTeamScreen", "Després saveMatchToFirebase ${viewModel.match.value}")
-                    viewModel.match.value?.let { matchesViewModel.updateMatch(it) } //TODO: revisar
-                    navController.navigate("matchScreen/$matchId") }) {
+
+                    if(teamPlayers.isEmpty()){
+                        Toast.makeText(
+                            context,
+                            "La plantilla ha de comptar, com a mínim, amb una persona participant",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else if(teamName.isEmpty()){
+                        Toast.makeText(
+                            context,
+                            "Tot equip ha de tenir un nom a defensar!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    else {
+                        viewModel.updateTeam("away", teamName, teamPlayers, staff)
+                        viewModel.setToStarted()
+                        viewModel.saveMatchToFirebase()
+                        viewModel.match.value?.let { matchesViewModel.updateMatch(it) }
+                        navController.navigate("matchScreen/$matchId")
+                    }
+                })
+                {
                     Text(text = "Registrar equip visitant".uppercase())
                 }
 
