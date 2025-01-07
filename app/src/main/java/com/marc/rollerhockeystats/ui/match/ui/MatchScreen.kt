@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.R
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.viewmodel.MatchViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,16 +31,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ShortText
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -58,21 +53,30 @@ import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.marc.rollerhockeystats.ui.models.Action
-import com.marc.rollerhockeystats.ui.models.Player
-import com.marc.rollerhockeystats.ui.models.ActionTypes
-import com.marc.rollerhockeystats.ui.models.Circle
-import com.marc.rollerhockeystats.ui.models.Position
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
-import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
+import com.marc.rollerhockeystats.models.Action
+import com.marc.rollerhockeystats.models.Player
+import com.marc.rollerhockeystats.models.ActionTypes
+import com.marc.rollerhockeystats.models.Circle
+import com.marc.rollerhockeystats.models.Position
+import com.marc.rollerhockeystats.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.viewmodel.MatchesViewModel
 
 
 @Composable
-fun MatchScreen(matchId : String, navController: NavController, matchesViewModel: MatchesViewModel){
+fun MatchScreen(
+    matchId: String,
+    navController: NavController,
+    matchesViewModel: MatchesViewModel,
+    homeScore: Int,
+    awayScore: Int
+){
 
     Log.d("MatchScreen", "Creant instància MatchViewModel amb matchId: $matchId")
     val matchViewModel : MatchViewModel = viewModel (factory = MatchViewModelFactory(matchId))
     Log.d("MatchScreen", "MatchViewModel creat: $matchViewModel")
+
+    matchViewModel.updateHomeScore(homeScore)
+    matchViewModel.updateAwayScore(awayScore)
 
     var selectedPlayer by remember { mutableStateOf<Player?>(null) }
     var selectedAction by remember { mutableStateOf<String?>(null)}
@@ -221,7 +225,8 @@ fun MatchTopBar(viewModel : MatchViewModel, navController: NavController, matchI
 
                 }
 
-                Text("${match?.homeTeam?.teamName} ${match?.homeScore} - ${match?.awayScore} ${match?.awayTeam?.teamName}")
+                Text("${match?.homeTeam?.teamName} $homeScore - $awayScore ${match?.awayTeam?.teamName}")
+
 
                 if(halfs != null && currentHalf < halfs){
                     Button(onClick = {

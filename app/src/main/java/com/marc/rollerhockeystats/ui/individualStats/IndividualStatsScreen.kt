@@ -6,15 +6,21 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,16 +44,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.layout.BeyondBoundsLayout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.marc.rollerhockeystats.R
-import com.marc.rollerhockeystats.ui.models.Action
-import com.marc.rollerhockeystats.ui.models.Player
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.models.Action
+import com.marc.rollerhockeystats.models.Player
+import com.marc.rollerhockeystats.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.viewmodel.MatchViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,21 +70,17 @@ fun IndividualStatsScreen(matchId : String, navController : NavController) {
     var awayExpanded by remember { mutableStateOf(false) }
     var selectedPlayer by remember { mutableStateOf<Player?>(null) }
     val isPrebenjami = match?.isPrebenjami()
-    val rinkHockeyWidth = match?.rinkWidth
-    val rinkHockeyHeight = match?.rinkHeight
-
-
-
+    var halfToPrint by remember { mutableStateOf(1) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Estadístiques individuals") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate("home") }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = "Tornar al menú principal",
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Tornar a resum partit",
                             tint = Color.Black
                         )
                     }
@@ -87,6 +92,10 @@ fun IndividualStatsScreen(matchId : String, navController : NavController) {
             )
         }
     ) { paddingValues ->
+
+        val canvasPadding = with(LocalDensity.current){
+            paddingValues.calculateStartPadding(LayoutDirection.Ltr).toPx() + 16.dp.toPx()
+        }
 
         Row{
             Column(
@@ -213,6 +222,33 @@ fun IndividualStatsScreen(matchId : String, navController : NavController) {
                             Text("Targetes vermelles: ${selectedPlayer?.redCards}")
                         } else
                             Text("Selecciona un jugador/a per veure les dades")
+
+                        //botó per seleccionar part
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                if(halfToPrint == 1)
+                                    halfToPrint = 2
+                                else
+                                    halfToPrint = 1
+                            }
+                        ){
+                            Text(
+                                text =
+                                    if(halfToPrint == 1) {
+                                        if (isPrebenjami == true)
+                                            "Veure tercera i quarta part"
+                                        else
+                                            "Veure segona part"
+                                    }
+                                    else{
+                                        if(isPrebenjami == true)
+                                            "Veure primera i segona part"
+                                        else
+                                            "Veure primera part"
+                                    }
+                                )
+                        }
                     }
                 }
 
@@ -227,13 +263,14 @@ fun IndividualStatsScreen(matchId : String, navController : NavController) {
                     .background(Color.Blue),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
+
                 Text(
                     text = "Accions primera part",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
 
-                Box(modifier = Modifier){ //pintem a la pista de la 1a part (1-2 prebenjamí)
+                Box(modifier = Modifier){ //pintem les accions del jugador seleccionat a la pista
                     Image(
                         painter = painterResource(id = R.drawable.pistapartit),
                         contentDescription = "Pista d'hoquei",
@@ -247,58 +284,46 @@ fun IndividualStatsScreen(matchId : String, navController : NavController) {
                         matchViewModel.updateStatsScreen1Width(size.width)
                         matchViewModel.updateStatsScreen1Height(size.height)
                         Log.d("IndividualStatsScreen", "Width: ${size.width}, Height: ${size.height}")
+
                         if(selectedPlayer != null && isPrebenjami != null){
-                           drawPlayerActions(selectedPlayer!!, 1, isPrebenjami, matchViewModel)
+                           drawPlayerActions(selectedPlayer!!, halfToPrint, isPrebenjami, matchViewModel, canvasPadding)
                         }
                     }
                 }
 
-//                Box(modifier = Modifier){ //pintem a la pista de la 2a part (3-4 prebenjamí)
-//                    Image(
-//                        painter = painterResource(id = R.drawable.pistapartit),
-//                        contentDescription = "Pista d'hoquei",
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-//                    Canvas(modifier = Modifier.fillMaxSize()){
-//
-//                        matchViewModel.statsScreen2Width = size.width
-//                        matchViewModel.statsScreen2Height = size.height
-//                        if(selectedPlayer != null && isPrebenjami != null){
-//                            drawPlayerActions(selectedPlayer!!, 2, isPrebenjami, matchViewModel)
-//                        }
-//                    }
-//                }
             }
          }
     }
 }
 
 
-private fun DrawScope.drawPlayerActions(player : Player, halfToDraw : Int, isPrebenjami : Boolean, matchViewModel : MatchViewModel){
+private fun DrawScope.drawPlayerActions(player : Player, halfToDraw : Int, isPrebenjami : Boolean, matchViewModel : MatchViewModel, canvasPadding : Float){
 
 
     if(halfToDraw == 1) {
         for (action in player.firstHalfActions)
-            drawAction(action, matchViewModel)
+            drawAction(action, matchViewModel, canvasPadding)
         if (isPrebenjami) {
             for (action in player.secondHalfActions)
-                drawAction(action, matchViewModel)
+                drawAction(action, matchViewModel, canvasPadding)
         }
+        Log.d("IndividualStatsScreen", "Dibuixant cercle a (0,0)")
+        drawCircle(color = Color.Black, radius = 14f, center = Offset(0f,0f))
     }
     else{
         if(! isPrebenjami)
             for(action in player.secondHalfActions)
-                drawAction(action, matchViewModel)
+                drawAction(action, matchViewModel, canvasPadding)
         else{
             for(action in player.thirdHalfActions)
-                drawAction(action, matchViewModel)
+                drawAction(action, matchViewModel, canvasPadding)
             for(action in player.fourthHalfActions)
-                drawAction(action, matchViewModel)
+                drawAction(action, matchViewModel, canvasPadding)
         }
     }
 }
 
-private fun DrawScope.drawAction(action : Action, matchViewModel: MatchViewModel){
+private fun DrawScope.drawAction(action : Action, matchViewModel: MatchViewModel, canvasPadding: Float){
     val color = when(action.actionType){
         "Gol" -> Color.Magenta
         "Tir" -> Color.Gray
@@ -309,11 +334,11 @@ private fun DrawScope.drawAction(action : Action, matchViewModel: MatchViewModel
         "Blava" -> Color.Blue
         else -> Color.Black
     }
-    action.position?.let { drawCircle(color, radius = 14f, center = scalateOffset(it.toOffset(),matchViewModel))}
+    action.position?.let { drawCircle(color, radius = 14f, center = scalateOffset(it.toOffset(),matchViewModel, canvasPadding))}
 
 }
 
-fun scalateOffset(offset : Offset, matchViewModel : MatchViewModel) : Offset{
+fun scalateOffset(offset : Offset, matchViewModel : MatchViewModel, canvasPadding: Float) : Offset{
 
     val rinkHockeyWidth = matchViewModel.match.value?.rinkWidth
     val rinkHockeyHeight = matchViewModel.match.value?.rinkHeight
@@ -324,7 +349,21 @@ fun scalateOffset(offset : Offset, matchViewModel : MatchViewModel) : Offset{
     val newX = (offset.x / rinkHockeyWidth!!) * matchViewModel.statsScreen1Width.value
     val newY = (offset.y / rinkHockeyHeight!!) * matchViewModel.statsScreen1Height.value
 
-    val newOffset = Offset(newX,newY)
+    var adjustedX = 1f
+    if(newX > matchViewModel.statsScreen1Width.value/2){
+        adjustedX = newX + 60f
+    }
+    else{
+        adjustedX = newX - 60f
+    }
+    var adjustedY = 1f
+    if(newY > matchViewModel.statsScreen1Height.value/2){
+        adjustedY = newY - 60f
+    }
+    else{
+        adjustedY = newY + 60f
+    }
+    val newOffset = Offset(adjustedX, adjustedY)
     Log.d("IndividualStatsScreen", "Escalat de l'offset: $offset a $newOffset")
     return newOffset
 }

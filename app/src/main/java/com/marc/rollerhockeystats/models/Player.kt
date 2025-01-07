@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.models
+package com.marc.rollerhockeystats.models
 
 data class Player(
     val id: String? = "",
@@ -24,7 +24,7 @@ data class Player(
     )
 {
     companion object {
-        fun create(newName : String, newNumber : Int, isHomePlayer: Boolean) : Player{
+        fun create(newName : String, newNumber : Int, isHomePlayer: Boolean) : Player {
             return Player(name = newName, number = newNumber, ishome = isHomePlayer  )
         }
     }

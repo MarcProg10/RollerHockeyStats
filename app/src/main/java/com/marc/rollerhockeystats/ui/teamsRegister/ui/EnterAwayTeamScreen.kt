@@ -55,16 +55,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.marc.rollerhockeystats.ui.models.Player
-import com.marc.rollerhockeystats.ui.models.StaffMember
-import com.marc.rollerhockeystats.ui.models.Team
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
-import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
+import com.marc.rollerhockeystats.models.Player
+import com.marc.rollerhockeystats.models.StaffMember
+import com.marc.rollerhockeystats.models.Team
+import com.marc.rollerhockeystats.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.viewmodel.MatchesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesViewModel: MatchesViewModel ){
+fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesViewModel: MatchesViewModel){
 
     Log.d("EnterAwayTeamScreen", "Creant instància MatchViewModel amb matchId: $matchId")
     val viewModel : MatchViewModel = viewModel(factory = MatchViewModelFactory(matchId))
@@ -318,7 +318,8 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                                 text = "${player.name} - ${player.number}",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .wrapContentSize(Alignment.Center),
+                                    .wrapContentSize(Alignment.Center)
+                                    .wrapContentHeight(Alignment.CenterVertically),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -349,10 +350,18 @@ fun EnterAwayTeamScreen(matchId : String, navController: NavController, matchesV
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                                .padding(vertical = 8.dp)
+                                .height(50.dp),
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
-                            Text("${staffMember.name} - ${staffMember.role}")
+                            Text(
+                                text = "${staffMember.name} - ${staffMember.role}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentSize(Alignment.Center)
+                                    .wrapContentHeight(Alignment.CenterVertically),
+                                textAlign = TextAlign.Center
+                                )
                         }
                     }
                 }

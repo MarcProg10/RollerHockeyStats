@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.models
+package com.marc.rollerhockeystats.models
 
 enum class StaffPenaltyType{
     BLUE_CARD,

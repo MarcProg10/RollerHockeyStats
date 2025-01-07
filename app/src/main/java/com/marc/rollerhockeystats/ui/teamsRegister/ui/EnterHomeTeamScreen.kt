@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,11 +55,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.marc.rollerhockeystats.ui.models.Player
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
-import com.marc.rollerhockeystats.ui.models.StaffMember
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
-import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
+import com.marc.rollerhockeystats.models.Player
+import com.marc.rollerhockeystats.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.models.StaffMember
+import com.marc.rollerhockeystats.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.viewmodel.MatchesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -322,7 +323,8 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                                 text = "${player.name} - ${player.number}",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .wrapContentSize(Alignment.Center),
+                                    .wrapContentSize(Alignment.Center)
+                                    .wrapContentHeight(Alignment.CenterVertically),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -353,10 +355,19 @@ fun EnterHomeTeamScreen(matchId : String, navController: NavController, matchesV
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                                .padding(vertical = 8.dp)
+                                .height(50.dp),
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
-                            Text("${staffMember.name} - ${staffMember.role}")
+                            Text(
+                                text = "${staffMember.name} - ${staffMember.role}",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight()
+                                    .wrapContentSize(Alignment.Center)
+                                    .wrapContentHeight(Alignment.CenterVertically),
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }

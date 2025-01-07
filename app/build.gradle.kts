@@ -107,4 +107,8 @@ dependencies {
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
+    testImplementation("org.mockito:mockito-core:5.5.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+
 }

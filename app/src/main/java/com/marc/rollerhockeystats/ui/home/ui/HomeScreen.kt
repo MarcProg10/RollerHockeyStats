@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,45 +26,54 @@ import com.marc.rollerhockeystats.R
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
-        Column(modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
+        Scaffold(
 
-            Image(
-                painter = painterResource(id = R.drawable.logotipapp),
-                contentDescription = "App logo",
+        ) { paddingValues ->
+
+            Column(
                 modifier = Modifier
-                    .size(250.dp)
-                    .padding(bottom = 32.dp)
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-            )
+                Image(
+                    painter = painterResource(id = R.drawable.logotipapp),
+                    contentDescription = "App logo",
+                    modifier = Modifier
+                        .size(250.dp)
+                        .padding(bottom = 32.dp)
 
-            Text(text = "Benvingut/da a RollerHockey Stats!",
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+                )
 
-            Button(onClick = { navController.navigate("createMatch") }, modifier = Modifier.width(200.dp)){
-                Text("Crear partit")
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = { navController.navigate("resumeMatch") }, modifier = Modifier.width(200.dp)) {
-                Text("Reemprendre partit")
+                Text(
+                    text = "Benvingut/da a RollerHockey Stats!",
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
 
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = { navController.navigate("loadFinishedMatch") },modifier = Modifier.width(200.dp)) {
-                Text("Visualitzar partit")
+                Button(
+                    onClick = { navController.navigate("createMatch") },
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    Text("Crear partit")
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = { navController.navigate("resumeMatch") },
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    Text("Reemprendre partit")
+
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = { navController.navigate("loadFinishedMatch") },
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    Text("Visualitzar partit")
+                }
             }
         }
-
 }
-
-//@Preview(
-//    showSystemUi = true,
-//    showBackground = true
-//)
-//@Composable
-//fun HomeScreenPreview(navController: NavHostController){
-//    HomeScreen(navController)
-//}

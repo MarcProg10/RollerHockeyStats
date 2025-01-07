@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModel
-import com.marc.rollerhockeystats.ui.viewmodel.MatchViewModelFactory
+import com.marc.rollerhockeystats.viewmodel.MatchViewModel
+import com.marc.rollerhockeystats.viewmodel.MatchViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

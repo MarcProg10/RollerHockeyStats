@@ -9,8 +9,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
-import com.marc.rollerhockeystats.ui.navigation.MainNavHost
+import com.marc.rollerhockeystats.viewmodel.MatchesViewModel
+import com.marc.rollerhockeystats.navigation.MainNavHost
 import com.marc.rollerhockeystats.ui.theme.RollerHockeyStatsTheme
 
 

@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.models
+package com.marc.rollerhockeystats.models
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding

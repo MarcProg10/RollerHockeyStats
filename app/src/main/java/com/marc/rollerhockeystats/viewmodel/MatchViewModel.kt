@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.viewmodel
+package com.marc.rollerhockeystats.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,11 +8,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.marc.rollerhockeystats.ui.models.Action
-import com.marc.rollerhockeystats.ui.models.Match
-import com.marc.rollerhockeystats.ui.models.Player
-import com.marc.rollerhockeystats.ui.models.StaffMember
-import com.marc.rollerhockeystats.ui.models.Team
+import com.marc.rollerhockeystats.models.Action
+import com.marc.rollerhockeystats.models.Match
+import com.marc.rollerhockeystats.models.Player
+import com.marc.rollerhockeystats.models.StaffMember
+import com.marc.rollerhockeystats.models.Team
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -84,6 +84,16 @@ class MatchViewModel(matchId : String) : ViewModel() {
 
     private val _awayFouls = MutableStateFlow(0)
     val awayFouls : StateFlow<Int> = _awayFouls
+
+    fun updateHomeScore(goals: Int) {
+        if(goals > 0)
+            _homeScore.value = goals
+    }
+
+    fun updateAwayScore(goals: Int) {
+        if(goals > 0)
+            _awayScore.value = goals
+    }
 
     fun setMatch(match : Match){
         _match.value = match

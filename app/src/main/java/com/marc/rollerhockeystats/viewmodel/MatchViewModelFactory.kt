@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.viewmodel
+package com.marc.rollerhockeystats.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

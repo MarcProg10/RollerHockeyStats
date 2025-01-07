@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.viewmodel
+package com.marc.rollerhockeystats.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
@@ -9,7 +9,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.marc.rollerhockeystats.ui.models.Match
+import com.marc.rollerhockeystats.models.Match
 import kotlinx.coroutines.launch
 
 

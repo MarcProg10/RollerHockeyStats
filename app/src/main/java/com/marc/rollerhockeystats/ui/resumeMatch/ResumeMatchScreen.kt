@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -26,8 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.marc.rollerhockeystats.ui.models.Match
-import com.marc.rollerhockeystats.ui.viewmodel.MatchesViewModel
+import com.marc.rollerhockeystats.models.Match
+import com.marc.rollerhockeystats.viewmodel.MatchesViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -64,19 +66,23 @@ fun ResumeMatchScreen(navController: NavController) {
             text = "Selecciona partit a reemprendre",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(12.dp)
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.CenterHorizontally)
         )
 
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(64.dp)
         ) {
             if (matches.isEmpty()) {
                 item {
                     Text(
                         text = "No hi ha cap partit a reemprendre",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -113,7 +119,7 @@ fun ResumeMatchCard(match: Match, navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { navController.navigate("matchScreen/${match.id}") }
+            .clickable { navController.navigate("matchScreen/${match.id}/${match.homeScore}/${match.awayScore}") }
     ){
         Column(
             modifier = Modifier
@@ -121,20 +127,15 @@ fun ResumeMatchCard(match: Match, navController: NavController) {
         ){
             Text(
                 text = "${match.homeTeam?.teamName} ${match.homeScore} - ${match.awayScore} ${match.awayTeam?.teamName}",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
-                text = "Categoria: ${match.category} - ${match.ubication} - $date",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "${match.category} | ${match.ubication} | $date | Part actual: ${match.currentHalf}",
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Gray
 
-            )
-            Text(
-                text = "Part actual: ${match.currentHalf}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.DarkGray
             )
 
         }

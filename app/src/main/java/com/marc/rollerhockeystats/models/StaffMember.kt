@@ -1,4 +1,4 @@
-package com.marc.rollerhockeystats.ui.models
+package com.marc.rollerhockeystats.models
 
 data class StaffMember(
     val staffId : String = "",
@@ -9,7 +9,7 @@ data class StaffMember(
     val redCars : Int = 0
 ){
     companion object {
-        fun create(newName : String, newRole : String) : StaffMember{
+        fun create(newName : String, newRole : String) : StaffMember {
             return StaffMember(name = newName, role = newRole )
         }
     }
